@@ -12,7 +12,7 @@
     "build:frontend": "pnpm --filter frontend build",
     "build:backend": "pnpm --filter backend build",
     "build": "pnpm run build:shared && pnpm run build:frontend && pnpm run build:backend",
-    "lint": "eslint .",
+    "lint": "pnpm --filter frontend lint",
     "format": "prettier --write .",
     "prepare": "husky"
   },
