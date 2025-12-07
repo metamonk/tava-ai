@@ -50,14 +50,29 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Install Vercel CLI
+        run: npm install -g vercel@latest
+
+      - name: Pull Vercel Environment Information
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+        working-directory: ./apps/frontend
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      - name: Build Project Artifacts
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+        working-directory: ./apps/frontend
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
       - name: Deploy to Vercel
-        uses: amondnet/vercel-action@v25
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          vercel-args: '--prod'
-          working-directory: ./apps/frontend
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+        working-directory: ./apps/frontend
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
   # Deploy backend to AWS App Runner via ECR
   deploy-backend:
@@ -88,6 +103,30 @@ jobs:
           docker build --platform linux/amd64 -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest -f apps/backend/Dockerfile .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+
+      - name: Wait for App Runner service to be ready
+        run: |
+          echo "Checking App Runner service status..."
+          MAX_ATTEMPTS=30
+          ATTEMPT=0
+          while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
+            STATUS=$(aws apprunner describe-service --service-arn ${{ secrets.APP_RUNNER_SERVICE_ARN }} --query 'Service.Status' --output text)
+            echo "Current status: $STATUS (attempt $((ATTEMPT+1))/$MAX_ATTEMPTS)"
+            if [ "$STATUS" = "RUNNING" ] || [ "$STATUS" = "CREATE_FAILED" ] || [ "$STATUS" = "DELETE_FAILED" ]; then
+              echo "Service is ready for update"
+              break
+            fi
+            if [ "$STATUS" = "DELETED" ]; then
+              echo "Error: Service has been deleted"
+              exit 1
+            fi
+            ATTEMPT=$((ATTEMPT+1))
+            sleep 10
+          done
+          if [ $ATTEMPT -eq $MAX_ATTEMPTS ]; then
+            echo "Timeout waiting for service to be ready"
+            exit 1
+          fi
 
       - name: Update App Runner service
         env:
