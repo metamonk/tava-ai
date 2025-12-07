@@ -3,15 +3,31 @@ dotenv.config();
 
 import express, { Request, Response } from 'express';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
+import { toNodeHandler, fromNodeHeaders } from 'better-auth/node';
 import { sql } from 'drizzle-orm';
 import { db } from './db';
+import { auth } from './auth/config';
+import { requireAuth, requireRole } from './middleware/auth';
 
 const app = express();
 const PORT = process.env.PORT || 8080;
 
-// Middleware
-app.use(cors());
+// CORS configuration with credentials support for auth cookies
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    credentials: true,
+  })
+);
+
+// Mount BetterAuth handler BEFORE express.json() middleware
+app.all('/api/auth/*', toNodeHandler(auth));
+
+// Body parsing middleware (after BetterAuth handler)
 app.use(express.json());
+app.use(cookieParser());
 
 // Health check endpoint for App Runner
 app.get('/health', async (_req: Request, res: Response) => {
@@ -45,6 +61,18 @@ app.get('/health', async (_req: Request, res: Response) => {
 app.get('/api', (_req: Request, res: Response) => {
   res.json({ message: 'Tava AI API' });
 });
+
+// Get current user session - used for session persistence on page refresh
+app.get('/api/me', requireAuth, (req: Request, res: Response) => {
+  res.json({
+    user: req.user,
+    session: req.session,
+  });
+});
+
+// Example protected routes (for reference)
+// app.get('/api/therapist/dashboard', requireAuth, requireRole('therapist'), (req, res) => { ... });
+// app.get('/api/client/plan', requireAuth, requireRole('client'), (req, res) => { ... });
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

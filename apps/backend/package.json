@@ -14,6 +14,9 @@
   },
   "dependencies": {
     "@tava-ai/shared": "workspace:*",
+    "bcryptjs": "^3.0.3",
+    "better-auth": "^1.4.5",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "drizzle-orm": "^0.45.0",
@@ -21,6 +24,8 @@
     "pg": "^8.16.3"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^3.0.0",
+    "@types/cookie-parser": "^1.4.10",
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
     "@types/node": "^22.10.2",

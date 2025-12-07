@@ -7,7 +7,7 @@
     "tunnel:stop": "pnpm --filter backend tunnel:stop",
     "dev:frontend": "pnpm --filter frontend dev",
     "dev:backend": "pnpm --filter backend dev",
-    "dev": "pnpm run --parallel dev:frontend dev:backend",
+    "dev": "pnpm --filter frontend --filter backend --parallel dev",
     "build:shared": "pnpm --filter @tava-ai/shared build",
     "build:frontend": "pnpm --filter frontend build",
     "build:backend": "pnpm --filter backend build",

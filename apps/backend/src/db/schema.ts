@@ -1,21 +1,88 @@
-import { pgTable, uuid, varchar, text, timestamp, boolean, integer } from 'drizzle-orm/pg-core';
+import {
+  pgTable,
+  uuid,
+  varchar,
+  text,
+  timestamp,
+  boolean,
+  integer,
+  index,
+} from 'drizzle-orm/pg-core';
 
+// Users table - extended for BetterAuth compatibility
 export const users = pgTable('users', {
-  id: uuid('id').primaryKey().defaultRandom(),
+  id: text('id').primaryKey(), // BetterAuth uses text IDs
   email: varchar('email', { length: 255 }).notNull().unique(),
-  passwordHash: varchar('password_hash', { length: 255 }).notNull(),
+  emailVerified: boolean('email_verified').default(false).notNull(),
   name: varchar('name', { length: 255 }).notNull(),
+  image: text('image'),
   role: varchar('role', { length: 20 }).notNull(), // 'therapist' | 'client'
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
-export const sessions = pgTable('sessions', {
+// BetterAuth session table (named authSessions to avoid conflict with therapy sessions)
+export const authSessions = pgTable(
+  'auth_sessions',
+  {
+    id: text('id').primaryKey(),
+    expiresAt: timestamp('expires_at').notNull(),
+    token: text('token').notNull().unique(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+    ipAddress: text('ip_address'),
+    userAgent: text('user_agent'),
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+  },
+  (table) => [index('auth_sessions_user_id_idx').on(table.userId)]
+);
+
+// BetterAuth account table for credential/OAuth providers
+export const account = pgTable(
+  'account',
+  {
+    id: text('id').primaryKey(),
+    accountId: text('account_id').notNull(),
+    providerId: text('provider_id').notNull(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    accessToken: text('access_token'),
+    refreshToken: text('refresh_token'),
+    idToken: text('id_token'),
+    accessTokenExpiresAt: timestamp('access_token_expires_at'),
+    refreshTokenExpiresAt: timestamp('refresh_token_expires_at'),
+    scope: text('scope'),
+    password: text('password'), // Hashed password for credential provider
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  },
+  (table) => [index('account_user_id_idx').on(table.userId)]
+);
+
+// BetterAuth verification table for email verification tokens
+export const verification = pgTable(
+  'verification',
+  {
+    id: text('id').primaryKey(),
+    identifier: text('identifier').notNull(),
+    value: text('value').notNull(),
+    expiresAt: timestamp('expires_at').notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  },
+  (table) => [index('verification_identifier_idx').on(table.identifier)]
+);
+
+// Therapy sessions table
+export const therapySessions = pgTable('therapy_sessions', {
   id: uuid('id').primaryKey().defaultRandom(),
-  therapistId: uuid('therapist_id')
+  therapistId: text('therapist_id')
     .references(() => users.id)
     .notNull(),
-  clientId: uuid('client_id')
+  clientId: text('client_id')
     .references(() => users.id)
     .notNull(),
   date: timestamp('date').defaultNow().notNull(),
@@ -25,15 +92,16 @@ export const sessions = pgTable('sessions', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
+// Treatment plans table
 export const plans = pgTable('plans', {
   id: uuid('id').primaryKey().defaultRandom(),
   sessionId: uuid('session_id')
-    .references(() => sessions.id)
+    .references(() => therapySessions.id)
     .notNull(),
-  clientId: uuid('client_id')
+  clientId: text('client_id')
     .references(() => users.id)
     .notNull(),
-  therapistId: uuid('therapist_id')
+  therapistId: text('therapist_id')
     .references(() => users.id)
     .notNull(),
   versionNumber: integer('version_number').notNull(),

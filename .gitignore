@@ -33,5 +33,7 @@ node_modules/
 # MCP
 .mcp.json
 
+# Development
 .notes
+thoughts/
 
