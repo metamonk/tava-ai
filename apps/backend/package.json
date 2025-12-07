@@ -5,18 +5,27 @@
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "build": "tsc",
-    "start": "node dist/index.js"
+    "start": "node dist/index.js",
+    "tunnel": "ssh -i ~/.ssh/tava-bastion-key.pem -f -N -L 5432:tava-postgres.c1uuigcm4bd1.us-east-2.rds.amazonaws.com:5432 ec2-user@3.15.17.42 && echo 'SSH tunnel established on localhost:5432'",
+    "tunnel:stop": "pkill -f 'ssh.*tava-postgres.*5432' && echo 'Tunnel stopped'",
+    "db:generate": "drizzle-kit generate",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
     "@tava-ai/shared": "workspace:*",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
-    "express": "^4.21.2"
+    "drizzle-orm": "^0.45.0",
+    "express": "^4.21.2",
+    "pg": "^8.16.3"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
     "@types/node": "^22.10.2",
+    "@types/pg": "^8.15.6",
+    "drizzle-kit": "^0.31.8",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.7.2"
   }

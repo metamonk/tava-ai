@@ -3,6 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
+    "tunnel": "pnpm --filter backend tunnel",
+    "tunnel:stop": "pnpm --filter backend tunnel:stop",
     "dev:frontend": "pnpm --filter frontend dev",
     "dev:backend": "pnpm --filter backend dev",
     "dev": "pnpm run --parallel dev:frontend dev:backend",
