@@ -9,6 +9,8 @@ import { sql } from 'drizzle-orm';
 import { db } from './db';
 import { auth } from './auth/config';
 import { requireAuth, requireRole } from './middleware/auth';
+import sessionsRouter from './routes/sessions';
+import plansRouter from './routes/plans';
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -69,6 +71,12 @@ app.get('/api/me', requireAuth, (req: Request, res: Response) => {
     session: req.session,
   });
 });
+
+// Session management routes
+app.use('/api/sessions', sessionsRouter);
+
+// Plan management routes
+app.use('/api/plans', plansRouter);
 
 // Example protected routes (for reference)
 // app.get('/api/therapist/dashboard', requireAuth, requireRole('therapist'), (req, res) => { ... });

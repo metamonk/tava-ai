@@ -86,7 +86,8 @@ export const therapySessions = pgTable('therapy_sessions', {
     .references(() => users.id)
     .notNull(),
   date: timestamp('date').defaultNow().notNull(),
-  transcript: text('transcript').notNull(),
+  transcript: text('transcript'),
+  audioFilePath: text('audio_file_path'),
   riskLevel: varchar('risk_level', { length: 20 }).notNull().default('none'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
