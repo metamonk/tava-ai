@@ -118,4 +118,90 @@ router.get(
   }
 );
 
+// GET /api/dashboard/client - Get client dashboard with active plan and plan history
+router.get(
+  '/client',
+  requireAuth,
+  requireRole('client'),
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const clientId = req.user!.id;
+
+      // Get active plan with therapist info and session date
+      const [activePlan] = await db
+        .select({
+          id: plans.id,
+          clientPlanText: plans.clientPlanText,
+          versionNumber: plans.versionNumber,
+          createdAt: plans.createdAt,
+          sessionDate: therapySessions.date,
+          therapistName: users.name,
+        })
+        .from(plans)
+        .innerJoin(therapySessions, eq(plans.sessionId, therapySessions.id))
+        .innerJoin(users, eq(therapySessions.therapistId, users.id))
+        .where(and(eq(plans.clientId, clientId), eq(plans.isActive, true)))
+        .orderBy(desc(plans.createdAt))
+        .limit(1);
+
+      // Get plan history (all plans for client)
+      const planHistory = await db
+        .select({
+          id: plans.id,
+          versionNumber: plans.versionNumber,
+          createdAt: plans.createdAt,
+          isActive: plans.isActive,
+        })
+        .from(plans)
+        .where(eq(plans.clientId, clientId))
+        .orderBy(desc(plans.createdAt));
+
+      res.json({
+        activePlan: activePlan || null,
+        planHistory,
+      });
+    } catch (error) {
+      console.error('Error fetching client dashboard:', error);
+      res.status(500).json({ error: 'Failed to fetch dashboard data' });
+    }
+  }
+);
+
+// GET /api/dashboard/client/plans/:id - Get specific historical plan for client
+router.get(
+  '/client/plans/:id',
+  requireAuth,
+  requireRole('client'),
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { id } = req.params;
+      const clientId = req.user!.id;
+
+      const [plan] = await db
+        .select({
+          id: plans.id,
+          clientPlanText: plans.clientPlanText,
+          versionNumber: plans.versionNumber,
+          createdAt: plans.createdAt,
+          sessionDate: therapySessions.date,
+          therapistName: users.name,
+        })
+        .from(plans)
+        .innerJoin(therapySessions, eq(plans.sessionId, therapySessions.id))
+        .innerJoin(users, eq(therapySessions.therapistId, users.id))
+        .where(and(eq(plans.id, id), eq(plans.clientId, clientId)));
+
+      if (!plan) {
+        res.status(404).json({ error: 'Plan not found' });
+        return;
+      }
+
+      res.json({ plan });
+    } catch (error) {
+      console.error('Error fetching client plan:', error);
+      res.status(500).json({ error: 'Failed to fetch plan' });
+    }
+  }
+);
+
 export default router;

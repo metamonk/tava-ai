@@ -6,6 +6,7 @@ import { therapySessions } from '../db/schema';
 import { requireAuth, requireRole } from '../middleware/auth';
 import { upload, uploadMemory } from '../config/multer';
 import { transcribeAudio } from '../services/aiService';
+import { evaluateSessionRisk } from '../services/riskService';
 import fs from 'fs/promises';
 
 const router: IRouter = Router();
@@ -254,6 +255,11 @@ router.post(
         .update(therapySessions)
         .set({ transcript, updatedAt: new Date() })
         .where(eq(therapySessions.id, id));
+
+      // Evaluate risk level after transcription (non-blocking, log errors)
+      evaluateSessionRisk(id).catch((error) => {
+        console.error('Risk evaluation failed for session', id, error);
+      });
 
       res.json({ transcript });
     } catch (error) {

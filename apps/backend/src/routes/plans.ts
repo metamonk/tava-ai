@@ -5,6 +5,8 @@ import { db } from '../db';
 import { plans, therapySessions } from '../db/schema';
 import { requireAuth, requireRole } from '../middleware/auth';
 import { generateTherapistPlan, generateClientPlan } from '../services/aiService';
+import { generateSessionSummary } from '../services/summaryGenerator';
+import { evaluatePlanRisk } from '../services/riskService';
 
 const router: IRouter = Router();
 
@@ -38,9 +40,18 @@ router.post(
         return;
       }
 
-      // Generate plans (with retry logic built into service)
-      const therapistPlanData = await generateTherapistPlan(session.transcript);
+      // Generate plans and summaries in parallel (with retry logic built into services)
+      const [therapistPlanData, sessionSummaries] = await Promise.all([
+        generateTherapistPlan(session.transcript),
+        generateSessionSummary(session.transcript, new Date(session.date).toISOString()),
+      ]);
       const clientPlanData = await generateClientPlan(therapistPlanData);
+
+      // Evaluate risk of generated therapist plan (non-blocking, log errors)
+      const therapistPlanText = JSON.stringify(therapistPlanData, null, 2);
+      evaluatePlanRisk(therapistPlanText).catch((error) => {
+        console.error('Plan risk evaluation failed:', error);
+      });
 
       // Get next version number
       const existingPlans = await db
@@ -56,7 +67,7 @@ router.post(
         await db.update(plans).set({ isActive: false }).where(eq(plans.sessionId, sessionId));
       }
 
-      // Save new plan
+      // Save new plan with summaries
       const [plan] = await db
         .insert(plans)
         .values({
@@ -64,8 +75,10 @@ router.post(
           clientId: session.clientId,
           therapistId: session.therapistId,
           versionNumber,
-          therapistPlanText: JSON.stringify(therapistPlanData, null, 2),
+          therapistPlanText,
           clientPlanText: JSON.stringify(clientPlanData, null, 2),
+          therapistSummary: JSON.stringify(sessionSummaries.therapistSummary, null, 2),
+          clientSummary: JSON.stringify(sessionSummaries.clientSummary, null, 2),
           isActive: true,
         })
         .returning();

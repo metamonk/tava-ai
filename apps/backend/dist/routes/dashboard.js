@@ -94,4 +94,74 @@ router.get('/therapist/clients/:clientId', auth_1.requireAuth, (0, auth_1.requir
         res.status(500).json({ error: 'Failed to fetch client details' });
     }
 });
+// GET /api/dashboard/client - Get client dashboard with active plan and plan history
+router.get('/client', auth_1.requireAuth, (0, auth_1.requireRole)('client'), async (req, res) => {
+    try {
+        const clientId = req.user.id;
+        // Get active plan with therapist info and session date
+        const [activePlan] = await db_1.db
+            .select({
+            id: schema_1.plans.id,
+            clientPlanText: schema_1.plans.clientPlanText,
+            versionNumber: schema_1.plans.versionNumber,
+            createdAt: schema_1.plans.createdAt,
+            sessionDate: schema_1.therapySessions.date,
+            therapistName: schema_1.users.name,
+        })
+            .from(schema_1.plans)
+            .innerJoin(schema_1.therapySessions, (0, drizzle_orm_1.eq)(schema_1.plans.sessionId, schema_1.therapySessions.id))
+            .innerJoin(schema_1.users, (0, drizzle_orm_1.eq)(schema_1.therapySessions.therapistId, schema_1.users.id))
+            .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.plans.clientId, clientId), (0, drizzle_orm_1.eq)(schema_1.plans.isActive, true)))
+            .orderBy((0, drizzle_orm_1.desc)(schema_1.plans.createdAt))
+            .limit(1);
+        // Get plan history (all plans for client)
+        const planHistory = await db_1.db
+            .select({
+            id: schema_1.plans.id,
+            versionNumber: schema_1.plans.versionNumber,
+            createdAt: schema_1.plans.createdAt,
+            isActive: schema_1.plans.isActive,
+        })
+            .from(schema_1.plans)
+            .where((0, drizzle_orm_1.eq)(schema_1.plans.clientId, clientId))
+            .orderBy((0, drizzle_orm_1.desc)(schema_1.plans.createdAt));
+        res.json({
+            activePlan: activePlan || null,
+            planHistory,
+        });
+    }
+    catch (error) {
+        console.error('Error fetching client dashboard:', error);
+        res.status(500).json({ error: 'Failed to fetch dashboard data' });
+    }
+});
+// GET /api/dashboard/client/plans/:id - Get specific historical plan for client
+router.get('/client/plans/:id', auth_1.requireAuth, (0, auth_1.requireRole)('client'), async (req, res) => {
+    try {
+        const { id } = req.params;
+        const clientId = req.user.id;
+        const [plan] = await db_1.db
+            .select({
+            id: schema_1.plans.id,
+            clientPlanText: schema_1.plans.clientPlanText,
+            versionNumber: schema_1.plans.versionNumber,
+            createdAt: schema_1.plans.createdAt,
+            sessionDate: schema_1.therapySessions.date,
+            therapistName: schema_1.users.name,
+        })
+            .from(schema_1.plans)
+            .innerJoin(schema_1.therapySessions, (0, drizzle_orm_1.eq)(schema_1.plans.sessionId, schema_1.therapySessions.id))
+            .innerJoin(schema_1.users, (0, drizzle_orm_1.eq)(schema_1.therapySessions.therapistId, schema_1.users.id))
+            .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.plans.id, id), (0, drizzle_orm_1.eq)(schema_1.plans.clientId, clientId)));
+        if (!plan) {
+            res.status(404).json({ error: 'Plan not found' });
+            return;
+        }
+        res.json({ plan });
+    }
+    catch (error) {
+        console.error('Error fetching client plan:', error);
+        res.status(500).json({ error: 'Failed to fetch plan' });
+    }
+});
 exports.default = router;

@@ -119,6 +119,8 @@ export const plans = pgTable(
     versionNumber: integer('version_number').notNull(),
     therapistPlanText: text('therapist_plan_text').notNull(),
     clientPlanText: text('client_plan_text').notNull(),
+    therapistSummary: text('therapist_summary'),
+    clientSummary: text('client_summary'),
     isActive: boolean('is_active').notNull().default(true),
     createdAt: timestamp('created_at').defaultNow().notNull(),
   },
