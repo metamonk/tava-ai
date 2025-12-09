@@ -12,6 +12,10 @@
     "build:frontend": "pnpm --filter frontend build",
     "build:backend": "pnpm --filter backend build",
     "build": "pnpm run build:shared && pnpm run build:frontend && pnpm run build:backend",
+    "test": "pnpm --filter backend --filter frontend --parallel test:ci",
+    "test:backend": "pnpm --filter backend test",
+    "test:frontend": "pnpm --filter frontend test",
+    "test:coverage": "pnpm --filter backend --filter frontend --parallel test:coverage",
     "lint": "pnpm --filter frontend lint",
     "format": "prettier --write .",
     "prepare": "husky"

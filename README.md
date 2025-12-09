@@ -214,17 +214,30 @@ Risk levels are stored on sessions and displayed only to therapists.
 
 ## Testing
 
+The project uses Vitest for testing with @testing-library/react for frontend component tests.
+
 ```bash
-# Run tests
-cd apps/backend
+# Run all tests (backend + frontend)
 pnpm test
 
-# Run with coverage
+# Run tests with coverage
 pnpm test:coverage
 
-# Run with UI
-pnpm test:ui
+# Run backend tests only
+pnpm test:backend
+
+# Run frontend tests only
+pnpm test:frontend
+
+# Run tests with UI (from specific app)
+cd apps/backend && pnpm test:ui
+cd apps/frontend && pnpm test:ui
 ```
+
+### Test Coverage
+
+- **Backend**: Unit tests for AI services (transcription, plan generation, moderation), risk evaluation, and session summaries
+- **Frontend**: Component tests for DisclaimerBanner, TranscriptPreview, RiskFlags, LoadingStates, ErrorBanner, and EmptyState
 
 ## Deployment
 
