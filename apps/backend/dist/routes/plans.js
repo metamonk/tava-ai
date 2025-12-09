@@ -6,6 +6,8 @@ const db_1 = require("../db");
 const schema_1 = require("../db/schema");
 const auth_1 = require("../middleware/auth");
 const aiService_1 = require("../services/aiService");
+const summaryGenerator_1 = require("../services/summaryGenerator");
+const riskService_1 = require("../services/riskService");
 const router = (0, express_1.Router)();
 // POST /api/plans/generate/:sessionId - Generate plan from session transcript
 router.post('/generate/:sessionId', auth_1.requireAuth, (0, auth_1.requireRole)('therapist'), async (req, res) => {
@@ -28,9 +30,17 @@ router.post('/generate/:sessionId', auth_1.requireAuth, (0, auth_1.requireRole)(
             res.status(400).json({ error: 'Session has no transcript' });
             return;
         }
-        // Generate plans (with retry logic built into service)
-        const therapistPlanData = await (0, aiService_1.generateTherapistPlan)(session.transcript);
+        // Generate plans and summaries in parallel (with retry logic built into services)
+        const [therapistPlanData, sessionSummaries] = await Promise.all([
+            (0, aiService_1.generateTherapistPlan)(session.transcript),
+            (0, summaryGenerator_1.generateSessionSummary)(session.transcript, new Date(session.date).toISOString()),
+        ]);
         const clientPlanData = await (0, aiService_1.generateClientPlan)(therapistPlanData);
+        // Evaluate risk of generated therapist plan (non-blocking, log errors)
+        const therapistPlanText = JSON.stringify(therapistPlanData, null, 2);
+        (0, riskService_1.evaluatePlanRisk)(therapistPlanText).catch((error) => {
+            console.error('Plan risk evaluation failed:', error);
+        });
         // Get next version number
         const existingPlans = await db_1.db
             .select()
@@ -42,7 +52,7 @@ router.post('/generate/:sessionId', auth_1.requireAuth, (0, auth_1.requireRole)(
         if (existingPlans.length > 0) {
             await db_1.db.update(schema_1.plans).set({ isActive: false }).where((0, drizzle_orm_1.eq)(schema_1.plans.sessionId, sessionId));
         }
-        // Save new plan
+        // Save new plan with summaries
         const [plan] = await db_1.db
             .insert(schema_1.plans)
             .values({
@@ -50,8 +60,10 @@ router.post('/generate/:sessionId', auth_1.requireAuth, (0, auth_1.requireRole)(
             clientId: session.clientId,
             therapistId: session.therapistId,
             versionNumber,
-            therapistPlanText: JSON.stringify(therapistPlanData, null, 2),
+            therapistPlanText,
             clientPlanText: JSON.stringify(clientPlanData, null, 2),
+            therapistSummary: JSON.stringify(sessionSummaries.therapistSummary, null, 2),
+            clientSummary: JSON.stringify(sessionSummaries.clientSummary, null, 2),
             isActive: true,
         })
             .returning();

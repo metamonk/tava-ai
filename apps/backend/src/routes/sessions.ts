@@ -11,6 +11,32 @@ import fs from 'fs/promises';
 
 const router: IRouter = Router();
 
+/**
+ * Generate risk details based on risk level
+ * Since detailed moderation results aren't stored, this provides
+ * generic guidance based on the overall risk level
+ */
+function getRiskDetails(riskLevel: string): string[] {
+  switch (riskLevel) {
+    case 'high':
+      return [
+        'Potential self-harm or suicidal ideation detected',
+        'Content may indicate intent to harm self or others',
+        'Immediate clinical review recommended',
+      ];
+    case 'medium':
+      return [
+        'Elevated risk indicators detected',
+        'Content requires additional clinical attention',
+        'Review transcript for context and clinical significance',
+      ];
+    case 'low':
+      return ['Minor risk indicators present', 'Standard clinical attention recommended'];
+    default:
+      return [];
+  }
+}
+
 // POST /api/sessions - Create a new therapy session
 router.post(
   '/',
@@ -110,7 +136,16 @@ router.get('/:id', requireAuth, async (req: Request, res: Response): Promise<voi
       return;
     }
 
-    res.json({ session });
+    // Include risk details for therapists only (clients should not see detailed risk info)
+    const riskDetails =
+      req.user!.role === 'therapist' ? getRiskDetails(session.riskLevel) : undefined;
+
+    res.json({
+      session: {
+        ...session,
+        riskDetails,
+      },
+    });
   } catch (error) {
     console.error('Error fetching session:', error);
     res.status(500).json({ error: 'Failed to fetch session' });

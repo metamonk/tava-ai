@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
+import { DisclaimerBanner } from '@/components/disclaimers';
 
 interface ClientPlan {
   yourProgress: string;
@@ -190,6 +191,9 @@ export default function ClientPlanDetailPage() {
       </header>
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* AI-Generated Content Disclaimer */}
+        <DisclaimerBanner variant="clinical" className="mb-6" />
+
         {/* Historical Plan Notice */}
         <div className="mb-6 p-4 bg-gray-100 rounded-lg border border-gray-200">
           <div className="flex items-center gap-2 text-gray-700">

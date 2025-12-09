@@ -4,6 +4,7 @@ import { useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
+import HIPAAPrivacyNotice from '@/components/disclaimers/HIPAAPrivacyNotice';
 
 export default function SignupPage() {
   const router = useRouter();
@@ -192,6 +193,8 @@ export default function SignupPage() {
               </button>
             </div>
           </form>
+
+          <HIPAAPrivacyNotice />
         </div>
       </div>
     </div>

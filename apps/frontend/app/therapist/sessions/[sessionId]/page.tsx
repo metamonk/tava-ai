@@ -6,6 +6,8 @@ import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import TranscriptUpload from '@/components/sessions/TranscriptUpload';
 import TranscriptPreview from '@/components/sessions/TranscriptPreview';
+import { SyntheticDataNotice, DisclaimerBanner, RiskFlagIndicator } from '@/components/disclaimers';
+import type { RiskLevel } from '@/components/disclaimers';
 
 interface Session {
   id: string;
@@ -14,7 +16,8 @@ interface Session {
   date: string;
   transcript: string | null;
   audioFilePath: string | null;
-  riskLevel: string;
+  riskLevel: RiskLevel;
+  riskDetails?: string[];
   createdAt: string;
   updatedAt: string;
 }
@@ -224,6 +227,9 @@ export default function SessionDetailPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Synthetic Data Notice - Sticky Banner */}
+      <SyntheticDataNotice />
+
       {/* Header */}
       <header className="bg-white shadow-sm">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -257,6 +263,18 @@ export default function SessionDetailPage() {
       </header>
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Data Disclaimer Banner */}
+        <DisclaimerBanner variant="data" className="mb-6" />
+
+        {/* Risk Flag Indicator */}
+        {session.riskLevel !== 'none' && (
+          <RiskFlagIndicator
+            level={session.riskLevel}
+            details={session.riskDetails}
+            className="mb-6"
+          />
+        )}
+
         {/* Session Info Card */}
         <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Session Information</h2>

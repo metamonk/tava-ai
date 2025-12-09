@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
+import { DisclaimerBanner } from '@/components/disclaimers';
 
 interface Session {
   id: string;
@@ -191,6 +192,9 @@ export default function ClientDashboard() {
         {activeTab === 'plan' ? (
           /* Treatment Plan View */
           <>
+            {/* AI-Generated Content Disclaimer */}
+            <DisclaimerBanner variant="clinical" className="mb-6" />
+
             {!activePlan || !clientPlan ? (
               <div className="bg-white rounded-lg shadow-sm p-12 text-center">
                 <svg

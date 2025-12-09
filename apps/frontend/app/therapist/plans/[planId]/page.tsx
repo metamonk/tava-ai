@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
+import { DisclaimerBanner } from '@/components/disclaimers';
 
 interface TherapistPlan {
   presentingConcerns: string[];
@@ -272,6 +273,9 @@ export default function PlanEditorPage() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* AI-Generated Content Disclaimer */}
+        <DisclaimerBanner variant="clinical" className="mb-6" />
+
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Main Content */}
           <div className="lg:col-span-3">

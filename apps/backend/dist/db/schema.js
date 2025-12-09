@@ -89,6 +89,8 @@ exports.plans = (0, pg_core_1.pgTable)('plans', {
     versionNumber: (0, pg_core_1.integer)('version_number').notNull(),
     therapistPlanText: (0, pg_core_1.text)('therapist_plan_text').notNull(),
     clientPlanText: (0, pg_core_1.text)('client_plan_text').notNull(),
+    therapistSummary: (0, pg_core_1.text)('therapist_summary'),
+    clientSummary: (0, pg_core_1.text)('client_summary'),
     isActive: (0, pg_core_1.boolean)('is_active').notNull().default(true),
     createdAt: (0, pg_core_1.timestamp)('created_at').defaultNow().notNull(),
 }, (table) => [
