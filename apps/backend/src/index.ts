@@ -11,6 +11,7 @@ import { auth } from './auth/config';
 import { requireAuth, requireRole } from './middleware/auth';
 import sessionsRouter from './routes/sessions';
 import plansRouter from './routes/plans';
+import dashboardRouter from './routes/dashboard';
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -77,6 +78,9 @@ app.use('/api/sessions', sessionsRouter);
 
 // Plan management routes
 app.use('/api/plans', plansRouter);
+
+// Dashboard routes
+app.use('/api/dashboard', dashboardRouter);
 
 // Example protected routes (for reference)
 // app.get('/api/therapist/dashboard', requireAuth, requireRole('therapist'), (req, res) => { ... });

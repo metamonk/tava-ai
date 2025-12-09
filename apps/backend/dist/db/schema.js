@@ -68,7 +68,12 @@ exports.therapySessions = (0, pg_core_1.pgTable)('therapy_sessions', {
     riskLevel: (0, pg_core_1.varchar)('risk_level', { length: 20 }).notNull().default('none'),
     createdAt: (0, pg_core_1.timestamp)('created_at').defaultNow().notNull(),
     updatedAt: (0, pg_core_1.timestamp)('updated_at').defaultNow().notNull(),
-});
+}, (table) => [
+    (0, pg_core_1.index)('therapy_sessions_therapist_id_idx').on(table.therapistId),
+    (0, pg_core_1.index)('therapy_sessions_client_id_idx').on(table.clientId),
+    (0, pg_core_1.index)('therapy_sessions_date_idx').on(table.date),
+    (0, pg_core_1.index)('therapy_sessions_therapist_client_idx').on(table.therapistId, table.clientId),
+]);
 // Treatment plans table
 exports.plans = (0, pg_core_1.pgTable)('plans', {
     id: (0, pg_core_1.uuid)('id').primaryKey().defaultRandom(),
@@ -86,4 +91,8 @@ exports.plans = (0, pg_core_1.pgTable)('plans', {
     clientPlanText: (0, pg_core_1.text)('client_plan_text').notNull(),
     isActive: (0, pg_core_1.boolean)('is_active').notNull().default(true),
     createdAt: (0, pg_core_1.timestamp)('created_at').defaultNow().notNull(),
-});
+}, (table) => [
+    (0, pg_core_1.index)('plans_session_id_idx').on(table.sessionId),
+    (0, pg_core_1.index)('plans_is_active_idx').on(table.isActive),
+    (0, pg_core_1.index)('plans_session_active_idx').on(table.sessionId, table.isActive),
+]);

@@ -77,37 +77,54 @@ export const verification = pgTable(
 );
 
 // Therapy sessions table
-export const therapySessions = pgTable('therapy_sessions', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  therapistId: text('therapist_id')
-    .references(() => users.id)
-    .notNull(),
-  clientId: text('client_id')
-    .references(() => users.id)
-    .notNull(),
-  date: timestamp('date').defaultNow().notNull(),
-  transcript: text('transcript'),
-  audioFilePath: text('audio_file_path'),
-  riskLevel: varchar('risk_level', { length: 20 }).notNull().default('none'),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().notNull(),
-});
+export const therapySessions = pgTable(
+  'therapy_sessions',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    therapistId: text('therapist_id')
+      .references(() => users.id)
+      .notNull(),
+    clientId: text('client_id')
+      .references(() => users.id)
+      .notNull(),
+    date: timestamp('date').defaultNow().notNull(),
+    transcript: text('transcript'),
+    audioFilePath: text('audio_file_path'),
+    riskLevel: varchar('risk_level', { length: 20 }).notNull().default('none'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  },
+  (table) => [
+    index('therapy_sessions_therapist_id_idx').on(table.therapistId),
+    index('therapy_sessions_client_id_idx').on(table.clientId),
+    index('therapy_sessions_date_idx').on(table.date),
+    index('therapy_sessions_therapist_client_idx').on(table.therapistId, table.clientId),
+  ]
+);
 
 // Treatment plans table
-export const plans = pgTable('plans', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  sessionId: uuid('session_id')
-    .references(() => therapySessions.id)
-    .notNull(),
-  clientId: text('client_id')
-    .references(() => users.id)
-    .notNull(),
-  therapistId: text('therapist_id')
-    .references(() => users.id)
-    .notNull(),
-  versionNumber: integer('version_number').notNull(),
-  therapistPlanText: text('therapist_plan_text').notNull(),
-  clientPlanText: text('client_plan_text').notNull(),
-  isActive: boolean('is_active').notNull().default(true),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-});
+export const plans = pgTable(
+  'plans',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    sessionId: uuid('session_id')
+      .references(() => therapySessions.id)
+      .notNull(),
+    clientId: text('client_id')
+      .references(() => users.id)
+      .notNull(),
+    therapistId: text('therapist_id')
+      .references(() => users.id)
+      .notNull(),
+    versionNumber: integer('version_number').notNull(),
+    therapistPlanText: text('therapist_plan_text').notNull(),
+    clientPlanText: text('client_plan_text').notNull(),
+    isActive: boolean('is_active').notNull().default(true),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  },
+  (table) => [
+    index('plans_session_id_idx').on(table.sessionId),
+    index('plans_is_active_idx').on(table.isActive),
+    index('plans_session_active_idx').on(table.sessionId, table.isActive),
+  ]
+);
