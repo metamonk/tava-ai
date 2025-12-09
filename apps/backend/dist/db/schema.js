@@ -63,7 +63,8 @@ exports.therapySessions = (0, pg_core_1.pgTable)('therapy_sessions', {
         .references(() => exports.users.id)
         .notNull(),
     date: (0, pg_core_1.timestamp)('date').defaultNow().notNull(),
-    transcript: (0, pg_core_1.text)('transcript').notNull(),
+    transcript: (0, pg_core_1.text)('transcript'),
+    audioFilePath: (0, pg_core_1.text)('audio_file_path'),
     riskLevel: (0, pg_core_1.varchar)('risk_level', { length: 20 }).notNull().default('none'),
     createdAt: (0, pg_core_1.timestamp)('created_at').defaultNow().notNull(),
     updatedAt: (0, pg_core_1.timestamp)('updated_at').defaultNow().notNull(),

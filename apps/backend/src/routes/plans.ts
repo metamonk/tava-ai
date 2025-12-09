@@ -153,6 +153,119 @@ router.get('/:id', requireAuth, async (req: Request, res: Response): Promise<voi
   }
 });
 
+// PUT /api/plans/:id - Update plan by creating a new version
+router.put(
+  '/:id',
+  requireAuth,
+  requireRole('therapist'),
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { id } = req.params;
+      const { therapistPlanText, clientPlanText, lastUpdatedAt } = req.body;
+
+      // Validate required fields
+      if (!therapistPlanText || !clientPlanText) {
+        res.status(400).json({ error: 'Both therapistPlanText and clientPlanText are required' });
+        return;
+      }
+
+      // Get the original plan
+      const [originalPlan] = await db.select().from(plans).where(eq(plans.id, id));
+
+      if (!originalPlan) {
+        res.status(404).json({ error: 'Plan not found' });
+        return;
+      }
+
+      // Verify therapist ownership
+      if (originalPlan.therapistId !== req.user!.id) {
+        res.status(403).json({ error: 'Forbidden' });
+        return;
+      }
+
+      // Optimistic locking check
+      if (lastUpdatedAt) {
+        const lastUpdatedDate = new Date(lastUpdatedAt);
+        if (lastUpdatedDate < new Date(originalPlan.createdAt)) {
+          res.status(409).json({
+            error: 'Plan was updated by another user. Please refresh and try again.',
+          });
+          return;
+        }
+      }
+
+      // Use a transaction to atomically deactivate old versions and create new one
+      const result = await db.transaction(async (tx) => {
+        // Deactivate all plans for this session
+        await tx
+          .update(plans)
+          .set({ isActive: false })
+          .where(eq(plans.sessionId, originalPlan.sessionId));
+
+        // Create new version
+        const [newPlan] = await tx
+          .insert(plans)
+          .values({
+            sessionId: originalPlan.sessionId,
+            clientId: originalPlan.clientId,
+            therapistId: originalPlan.therapistId,
+            versionNumber: originalPlan.versionNumber + 1,
+            therapistPlanText,
+            clientPlanText,
+            isActive: true,
+          })
+          .returning();
+
+        return newPlan;
+      });
+
+      res.json({ plan: result });
+    } catch (error) {
+      console.error('Error updating plan:', error);
+      res.status(500).json({ error: 'Failed to update plan' });
+    }
+  }
+);
+
+// GET /api/plans/session/:sessionId/versions - Get version history for a session
+router.get(
+  '/session/:sessionId/versions',
+  requireAuth,
+  requireRole('therapist'),
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { sessionId } = req.params;
+
+      // Verify session access
+      const [session] = await db
+        .select()
+        .from(therapySessions)
+        .where(eq(therapySessions.id, sessionId));
+
+      if (!session) {
+        res.status(404).json({ error: 'Session not found' });
+        return;
+      }
+
+      if (session.therapistId !== req.user!.id) {
+        res.status(403).json({ error: 'Access denied' });
+        return;
+      }
+
+      const versions = await db
+        .select()
+        .from(plans)
+        .where(eq(plans.sessionId, sessionId))
+        .orderBy(desc(plans.versionNumber));
+
+      res.json({ versions });
+    } catch (error) {
+      console.error('Error fetching version history:', error);
+      res.status(500).json({ error: 'Failed to fetch version history' });
+    }
+  }
+);
+
 // GET /api/plans/session/:sessionId - Get all plans for a session
 router.get(
   '/session/:sessionId',

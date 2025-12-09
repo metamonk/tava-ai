@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -37,15 +37,31 @@ interface Plan {
   clientPlan: ClientPlan;
 }
 
-export default function PlanDetailPage() {
+interface Version {
+  id: string;
+  versionNumber: number;
+  isActive: boolean;
+  createdAt: string;
+}
+
+export default function PlanEditorPage() {
   const params = useParams();
+  const router = useRouter();
   const planId = params.planId as string;
   const { user, isLoading: authLoading } = useAuth();
 
   const [plan, setPlan] = useState<Plan | null>(null);
+  const [versions, setVersions] = useState<Version[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'therapist' | 'client'>('therapist');
+  const [viewMode, setViewMode] = useState<'therapist' | 'client'>('therapist');
+  const [isEditing, setIsEditing] = useState(false);
+
+  // Editable state
+  const [therapistPlanText, setTherapistPlanText] = useState('');
+  const [clientPlanText, setClientPlanText] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
 
@@ -73,11 +89,75 @@ export default function PlanDetailPage() {
 
       const data = await response.json();
       setPlan(data.plan);
+      setTherapistPlanText(data.plan.therapistPlanText);
+      setClientPlanText(data.plan.clientPlanText);
+
+      // Fetch version history
+      fetchVersions(data.plan.sessionId);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load plan');
     } finally {
       setLoading(false);
     }
+  };
+
+  const fetchVersions = async (sessionId: string) => {
+    try {
+      const response = await fetch(`${apiUrl}/api/plans/session/${sessionId}/versions`, {
+        credentials: 'include',
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setVersions(data.versions || []);
+      }
+    } catch (err) {
+      console.error('Failed to fetch versions:', err);
+    }
+  };
+
+  const handleSave = async () => {
+    if (!plan) return;
+
+    setSaving(true);
+    setSaveError(null);
+
+    try {
+      const response = await fetch(`${apiUrl}/api/plans/${planId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          therapistPlanText,
+          clientPlanText,
+          lastUpdatedAt: plan.createdAt,
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        if (response.status === 409) {
+          throw new Error(data.error || 'Plan was modified. Please refresh and try again.');
+        }
+        throw new Error(data.error || 'Failed to save plan');
+      }
+
+      const data = await response.json();
+      router.push(`/therapist/plans/${data.plan.id}`);
+    } catch (err) {
+      setSaveError(err instanceof Error ? err.message : 'Failed to save plan');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    if (plan) {
+      setTherapistPlanText(plan.therapistPlanText);
+      setClientPlanText(plan.clientPlanText);
+    }
+    setIsEditing(false);
+    setSaveError(null);
   };
 
   if (authLoading || loading) {
@@ -147,7 +227,7 @@ export default function PlanDetailPage() {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <header className="bg-white shadow-sm">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Link
@@ -165,198 +245,343 @@ export default function PlanDetailPage() {
               </Link>
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">
-                  Treatment Plan v{plan.versionNumber}
+                  {isEditing ? 'Edit Treatment Plan' : `Treatment Plan v${plan.versionNumber}`}
                 </h1>
                 <p className="text-sm text-gray-600">
                   Created {new Date(plan.createdAt).toLocaleString()}
                 </p>
               </div>
             </div>
-            {plan.isActive && (
-              <span className="px-3 py-1 text-sm font-medium rounded-full bg-green-100 text-green-700">
-                Active
-              </span>
-            )}
+            <div className="flex items-center gap-3">
+              {plan.isActive && (
+                <span className="px-3 py-1 text-sm font-medium rounded-full bg-green-100 text-green-700">
+                  Active
+                </span>
+              )}
+              {!isEditing && user?.role === 'therapist' && (
+                <button
+                  onClick={() => setIsEditing(true)}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md font-medium hover:bg-blue-700 transition-colors"
+                >
+                  Edit Plan
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Tab Navigation */}
-        <div className="flex gap-2 mb-6">
-          <button
-            onClick={() => setActiveTab('therapist')}
-            className={`px-4 py-2 rounded-md font-medium transition-colors ${
-              activeTab === 'therapist'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
-          >
-            Therapist View
-          </button>
-          <button
-            onClick={() => setActiveTab('client')}
-            className={`px-4 py-2 rounded-md font-medium transition-colors ${
-              activeTab === 'client'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
-          >
-            Client View
-          </button>
-        </div>
-
-        {activeTab === 'therapist' ? (
-          <div className="space-y-6">
-            {/* Presenting Concerns */}
-            <Section title="Presenting Concerns">
-              <ul className="list-disc list-inside space-y-1">
-                {therapistPlan.presentingConcerns.map((concern, idx) => (
-                  <li key={idx} className="text-gray-700">
-                    {concern}
-                  </li>
-                ))}
-              </ul>
-            </Section>
-
-            {/* Clinical Impressions */}
-            <Section title="Clinical Impressions">
-              <p className="text-gray-700 whitespace-pre-wrap">
-                {therapistPlan.clinicalImpressions}
-              </p>
-            </Section>
-
-            {/* Goals */}
-            <div className="grid md:grid-cols-2 gap-6">
-              <Section title="Short-Term Goals">
-                <ul className="list-disc list-inside space-y-1">
-                  {therapistPlan.shortTermGoals.map((goal, idx) => (
-                    <li key={idx} className="text-gray-700">
-                      {goal}
-                    </li>
-                  ))}
-                </ul>
-              </Section>
-
-              <Section title="Long-Term Goals">
-                <ul className="list-disc list-inside space-y-1">
-                  {therapistPlan.longTermGoals.map((goal, idx) => (
-                    <li key={idx} className="text-gray-700">
-                      {goal}
-                    </li>
-                  ))}
-                </ul>
-              </Section>
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          {/* Main Content */}
+          <div className="lg:col-span-3">
+            {/* Tab Navigation */}
+            <div className="flex gap-2 mb-6">
+              <button
+                onClick={() => setViewMode('therapist')}
+                className={`px-4 py-2 rounded-md font-medium transition-colors ${
+                  viewMode === 'therapist'
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                Therapist View
+              </button>
+              <button
+                onClick={() => setViewMode('client')}
+                className={`px-4 py-2 rounded-md font-medium transition-colors ${
+                  viewMode === 'client'
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                Client View
+              </button>
             </div>
 
-            {/* Interventions */}
-            <Section title="Interventions Used">
-              <div className="flex flex-wrap gap-2">
-                {therapistPlan.interventionsUsed.map((intervention, idx) => (
-                  <span
-                    key={idx}
-                    className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm"
-                  >
-                    {intervention}
-                  </span>
-                ))}
+            {/* Save Error */}
+            {saveError && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                <p className="text-sm text-red-700">{saveError}</p>
               </div>
-            </Section>
+            )}
 
-            {/* Homework */}
-            <Section title="Homework Assigned">
-              <ul className="list-disc list-inside space-y-1">
-                {therapistPlan.homework.map((item, idx) => (
-                  <li key={idx} className="text-gray-700">
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </Section>
+            {isEditing ? (
+              /* Edit Mode */
+              <div className="space-y-6">
+                {viewMode === 'therapist' ? (
+                  <div className="bg-white rounded-lg shadow-sm p-6">
+                    <label className="block mb-2 text-sm font-semibold text-gray-900">
+                      Therapist Plan (Clinical)
+                    </label>
+                    <textarea
+                      value={therapistPlanText}
+                      onChange={(e) => setTherapistPlanText(e.target.value)}
+                      className="w-full h-96 px-4 py-3 border border-gray-300 rounded-md font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="Enter therapist plan JSON..."
+                    />
+                  </div>
+                ) : (
+                  <div className="bg-white rounded-lg shadow-sm p-6">
+                    <label className="block mb-2 text-sm font-semibold text-gray-900">
+                      Client Plan (Simplified)
+                    </label>
+                    <textarea
+                      value={clientPlanText}
+                      onChange={(e) => setClientPlanText(e.target.value)}
+                      className="w-full h-96 px-4 py-3 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="Enter client plan JSON..."
+                    />
+                  </div>
+                )}
 
-            {/* Strengths */}
-            <Section title="Strengths & Protective Factors">
-              <ul className="list-disc list-inside space-y-1">
-                {therapistPlan.strengths.map((strength, idx) => (
-                  <li key={idx} className="text-gray-700">
-                    {strength}
-                  </li>
-                ))}
-              </ul>
-            </Section>
+                <div className="flex gap-3">
+                  <button
+                    onClick={handleSave}
+                    disabled={saving}
+                    className="flex-1 bg-green-600 text-white py-3 rounded-md font-medium hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+                  >
+                    {saving ? (
+                      <span className="flex items-center justify-center">
+                        <svg
+                          className="animate-spin -ml-1 mr-2 h-5 w-5 text-white"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                          />
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                          />
+                        </svg>
+                        Saving...
+                      </span>
+                    ) : (
+                      'Save as New Version'
+                    )}
+                  </button>
+                  <button
+                    onClick={handleCancelEdit}
+                    disabled={saving}
+                    className="px-6 py-3 bg-gray-200 text-gray-700 rounded-md font-medium hover:bg-gray-300 disabled:opacity-50 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            ) : (
+              /* View Mode */
+              <>
+                {viewMode === 'therapist' ? (
+                  <div className="space-y-6">
+                    <Section title="Presenting Concerns">
+                      <ul className="list-disc list-inside space-y-1">
+                        {therapistPlan.presentingConcerns.map((concern, idx) => (
+                          <li key={idx} className="text-gray-700">
+                            {concern}
+                          </li>
+                        ))}
+                      </ul>
+                    </Section>
 
-            {/* Risks */}
-            {therapistPlan.risks.length > 0 && (
-              <Section title="Risk Assessment" variant="danger">
-                <ul className="list-disc list-inside space-y-1">
-                  {therapistPlan.risks.map((risk, idx) => (
-                    <li key={idx} className="text-red-700">
-                      {risk}
-                    </li>
-                  ))}
-                </ul>
-              </Section>
+                    <Section title="Clinical Impressions">
+                      <p className="text-gray-700 whitespace-pre-wrap">
+                        {therapistPlan.clinicalImpressions}
+                      </p>
+                    </Section>
+
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <Section title="Short-Term Goals">
+                        <ul className="list-disc list-inside space-y-1">
+                          {therapistPlan.shortTermGoals.map((goal, idx) => (
+                            <li key={idx} className="text-gray-700">
+                              {goal}
+                            </li>
+                          ))}
+                        </ul>
+                      </Section>
+
+                      <Section title="Long-Term Goals">
+                        <ul className="list-disc list-inside space-y-1">
+                          {therapistPlan.longTermGoals.map((goal, idx) => (
+                            <li key={idx} className="text-gray-700">
+                              {goal}
+                            </li>
+                          ))}
+                        </ul>
+                      </Section>
+                    </div>
+
+                    <Section title="Interventions Used">
+                      <div className="flex flex-wrap gap-2">
+                        {therapistPlan.interventionsUsed.map((intervention, idx) => (
+                          <span
+                            key={idx}
+                            className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm"
+                          >
+                            {intervention}
+                          </span>
+                        ))}
+                      </div>
+                    </Section>
+
+                    <Section title="Homework Assigned">
+                      <ul className="list-disc list-inside space-y-1">
+                        {therapistPlan.homework.map((item, idx) => (
+                          <li key={idx} className="text-gray-700">
+                            {item}
+                          </li>
+                        ))}
+                      </ul>
+                    </Section>
+
+                    <Section title="Strengths & Protective Factors">
+                      <ul className="list-disc list-inside space-y-1">
+                        {therapistPlan.strengths.map((strength, idx) => (
+                          <li key={idx} className="text-gray-700">
+                            {strength}
+                          </li>
+                        ))}
+                      </ul>
+                    </Section>
+
+                    {therapistPlan.risks.length > 0 && (
+                      <Section title="Risk Assessment" variant="danger">
+                        <ul className="list-disc list-inside space-y-1">
+                          {therapistPlan.risks.map((risk, idx) => (
+                            <li key={idx} className="text-red-700">
+                              {risk}
+                            </li>
+                          ))}
+                        </ul>
+                      </Section>
+                    )}
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    <Section title="Your Progress" variant="success">
+                      <p className="text-gray-700 whitespace-pre-wrap">{clientPlan.yourProgress}</p>
+                    </Section>
+
+                    <Section title="Goals We Are Working On">
+                      <ul className="list-disc list-inside space-y-1">
+                        {clientPlan.goalsWeAreWorkingOn.map((goal, idx) => (
+                          <li key={idx} className="text-gray-700">
+                            {goal}
+                          </li>
+                        ))}
+                      </ul>
+                    </Section>
+
+                    <Section title="Things to Try This Week">
+                      <ul className="space-y-2">
+                        {clientPlan.thingsToTry.map((item, idx) => (
+                          <li key={idx} className="flex items-start gap-2">
+                            <span className="mt-1 text-green-500">
+                              <svg
+                                className="h-4 w-4"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M5 13l4 4L19 7"
+                                />
+                              </svg>
+                            </span>
+                            <span className="text-gray-700">{item}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </Section>
+
+                    <Section title="Your Strengths" variant="success">
+                      <div className="flex flex-wrap gap-2">
+                        {clientPlan.yourStrengths.map((strength, idx) => (
+                          <span
+                            key={idx}
+                            className="px-3 py-1 bg-green-50 text-green-700 rounded-full text-sm"
+                          >
+                            {strength}
+                          </span>
+                        ))}
+                      </div>
+                    </Section>
+                  </div>
+                )}
+              </>
             )}
           </div>
-        ) : (
-          <div className="space-y-6">
-            {/* Your Progress */}
-            <Section title="Your Progress" variant="success">
-              <p className="text-gray-700 whitespace-pre-wrap">{clientPlan.yourProgress}</p>
-            </Section>
 
-            {/* Goals */}
-            <Section title="Goals We Are Working On">
-              <ul className="list-disc list-inside space-y-1">
-                {clientPlan.goalsWeAreWorkingOn.map((goal, idx) => (
-                  <li key={idx} className="text-gray-700">
-                    {goal}
-                  </li>
-                ))}
-              </ul>
-            </Section>
-
-            {/* Things to Try */}
-            <Section title="Things to Try This Week">
-              <ul className="space-y-2">
-                {clientPlan.thingsToTry.map((item, idx) => (
-                  <li key={idx} className="flex items-start gap-2">
-                    <span className="mt-1 text-green-500">
-                      <svg
-                        className="h-4 w-4"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M5 13l4 4L19 7"
-                        />
-                      </svg>
-                    </span>
-                    <span className="text-gray-700">{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </Section>
-
-            {/* Your Strengths */}
-            <Section title="Your Strengths" variant="success">
-              <div className="flex flex-wrap gap-2">
-                {clientPlan.yourStrengths.map((strength, idx) => (
-                  <span
-                    key={idx}
-                    className="px-3 py-1 bg-green-50 text-green-700 rounded-full text-sm"
-                  >
-                    {strength}
-                  </span>
-                ))}
-              </div>
-            </Section>
+          {/* Version History Sidebar */}
+          <div className="lg:col-span-1">
+            <div className="bg-white rounded-lg shadow-sm p-6 sticky top-8">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">Version History</h2>
+              {versions.length > 0 ? (
+                <div className="space-y-3">
+                  {versions.map((v) => (
+                    <div
+                      key={v.id}
+                      className={`p-3 rounded-lg border transition-colors ${
+                        v.id === planId
+                          ? 'bg-blue-50 border-blue-300'
+                          : v.isActive
+                            ? 'bg-green-50 border-green-300'
+                            : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="font-semibold text-gray-900">v{v.versionNumber}</span>
+                        <div className="flex gap-1">
+                          {v.id === planId && (
+                            <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">
+                              Current
+                            </span>
+                          )}
+                          {v.isActive && (
+                            <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700">
+                              Active
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <div className="text-xs text-gray-500 mb-2">
+                        {new Date(v.createdAt).toLocaleDateString('en-US', {
+                          month: 'short',
+                          day: 'numeric',
+                          year: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </div>
+                      {v.id !== planId && (
+                        <button
+                          onClick={() => router.push(`/therapist/plans/${v.id}`)}
+                          className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+                        >
+                          View
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-gray-500">No version history available.</p>
+              )}
+            </div>
           </div>
-        )}
+        </div>
       </main>
     </div>
   );

@@ -13,6 +13,8 @@ const drizzle_orm_1 = require("drizzle-orm");
 const db_1 = require("./db");
 const config_1 = require("./auth/config");
 const auth_1 = require("./middleware/auth");
+const sessions_1 = __importDefault(require("./routes/sessions"));
+const plans_1 = __importDefault(require("./routes/plans"));
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 8080;
 // CORS configuration with credentials support for auth cookies
@@ -57,6 +59,10 @@ app.get('/api/me', auth_1.requireAuth, (req, res) => {
         session: req.session,
     });
 });
+// Session management routes
+app.use('/api/sessions', sessions_1.default);
+// Plan management routes
+app.use('/api/plans', plans_1.default);
 // Example protected routes (for reference)
 // app.get('/api/therapist/dashboard', requireAuth, requireRole('therapist'), (req, res) => { ... });
 // app.get('/api/client/plan', requireAuth, requireRole('client'), (req, res) => { ... });
