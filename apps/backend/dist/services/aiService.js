@@ -1,20 +1,11 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.openai = void 0;
-exports.transcribeAudio = transcribeAudio;
-exports.generateTherapistPlan = generateTherapistPlan;
-exports.generateClientPlan = generateClientPlan;
-const openai_1 = __importDefault(require("openai"));
-const openai_2 = require("openai");
+import OpenAI from 'openai';
+import { toFile } from 'openai';
 // Initialize OpenAI client
-exports.openai = new openai_1.default({
+export const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
 });
 // WHISPER TRANSCRIPTION
-async function transcribeAudio(audioBuffer, mimeType = 'audio/wav') {
+export async function transcribeAudio(audioBuffer, mimeType = 'audio/wav') {
     try {
         // Determine file extension from mime type
         const extensionMap = {
@@ -31,8 +22,8 @@ async function transcribeAudio(audioBuffer, mimeType = 'audio/wav') {
         };
         const extension = extensionMap[mimeType] || 'wav';
         // Convert buffer to file-like object for OpenAI SDK
-        const file = await (0, openai_2.toFile)(audioBuffer, `audio.${extension}`, { type: mimeType });
-        const transcription = await exports.openai.audio.transcriptions.create({
+        const file = await toFile(audioBuffer, `audio.${extension}`, { type: mimeType });
+        const transcription = await openai.audio.transcriptions.create({
             file: file,
             model: 'whisper-1',
             language: 'en',
@@ -70,11 +61,11 @@ Respond with ONLY valid JSON matching this schema:
   "strengths": string[],
   "risks": string[]
 }`;
-async function generateTherapistPlan(transcript, maxRetries = 3) {
+export async function generateTherapistPlan(transcript, maxRetries = 3) {
     let lastError = null;
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
         try {
-            const completion = await exports.openai.chat.completions.create({
+            const completion = await openai.chat.completions.create({
                 model: 'gpt-4-turbo-preview',
                 messages: [
                     { role: 'system', content: THERAPIST_PLAN_PROMPT },
@@ -138,11 +129,11 @@ Respond with ONLY valid JSON matching this schema:
   "thingsToTry": string[],
   "yourStrengths": string[]
 }`;
-async function generateClientPlan(therapistPlan, maxRetries = 3) {
+export async function generateClientPlan(therapistPlan, maxRetries = 3) {
     let lastError = null;
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
         try {
-            const completion = await exports.openai.chat.completions.create({
+            const completion = await openai.chat.completions.create({
                 model: 'gpt-4-turbo-preview',
                 messages: [
                     { role: 'system', content: CLIENT_PLAN_PROMPT },

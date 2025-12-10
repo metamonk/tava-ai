@@ -1,9 +1,9 @@
 import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { eq, and, desc, sql } from 'drizzle-orm';
-import { db } from '../db';
-import { users, therapySessions, plans } from '../db/schema';
-import { requireAuth, requireRole } from '../middleware/auth';
+import { db } from '../db/index.js';
+import { users, therapySessions, plans } from '../db/schema.js';
+import { requireAuth, requireRole } from '../middleware/auth.js';
 
 const router: IRouter = Router();
 

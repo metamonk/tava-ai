@@ -1,4 +1,4 @@
-import { openai } from './aiService';
+import { openai } from './aiService.js';
 
 export type RiskLevel = 'none' | 'low' | 'medium' | 'high';
 

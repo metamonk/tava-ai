@@ -6,12 +6,12 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import { toNodeHandler, fromNodeHeaders } from 'better-auth/node';
 import { sql } from 'drizzle-orm';
-import { db } from './db';
-import { auth } from './auth/config';
-import { requireAuth, requireRole } from './middleware/auth';
-import sessionsRouter from './routes/sessions';
-import plansRouter from './routes/plans';
-import dashboardRouter from './routes/dashboard';
+import { db } from './db/index.js';
+import { auth } from './auth/config.js';
+import { requireAuth, requireRole } from './middleware/auth.js';
+import sessionsRouter from './routes/sessions.js';
+import plansRouter from './routes/plans.js';
+import dashboardRouter from './routes/dashboard.js';
 
 const app = express();
 const PORT = process.env.PORT || 8080;

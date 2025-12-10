@@ -1,13 +1,9 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.requireAuth = requireAuth;
-exports.requireRole = requireRole;
-const node_1 = require("better-auth/node");
-const config_1 = require("../auth/config");
-async function requireAuth(req, res, next) {
+import { fromNodeHeaders } from 'better-auth/node';
+import { auth } from '../auth/config.js';
+export async function requireAuth(req, res, next) {
     try {
-        const session = await config_1.auth.api.getSession({
-            headers: (0, node_1.fromNodeHeaders)(req.headers),
+        const session = await auth.api.getSession({
+            headers: fromNodeHeaders(req.headers),
         });
         if (!session) {
             res.status(401).json({ error: 'Unauthorized' });
@@ -21,7 +17,7 @@ async function requireAuth(req, res, next) {
         res.status(401).json({ error: 'Invalid session' });
     }
 }
-function requireRole(role) {
+export function requireRole(role) {
     return (req, res, next) => {
         if (!req.user) {
             res.status(401).json({ error: 'Unauthorized' });

@@ -1,4 +1,4 @@
-import { type RiskLevel } from './moderationService';
+import { type RiskLevel } from './moderationService.js';
 /**
  * Evaluate risk level for a session based on its transcript
  * Updates the session's riskLevel in the database

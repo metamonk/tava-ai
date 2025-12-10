@@ -1,12 +1,12 @@
 import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { eq, and, desc } from 'drizzle-orm';
-import { db } from '../db';
-import { plans, therapySessions } from '../db/schema';
-import { requireAuth, requireRole } from '../middleware/auth';
-import { generateTherapistPlan, generateClientPlan } from '../services/aiService';
-import { generateSessionSummary } from '../services/summaryGenerator';
-import { evaluatePlanRisk } from '../services/riskService';
+import { db } from '../db/index.js';
+import { plans, therapySessions } from '../db/schema.js';
+import { requireAuth, requireRole } from '../middleware/auth.js';
+import { generateTherapistPlan, generateClientPlan } from '../services/aiService.js';
+import { generateSessionSummary } from '../services/summaryGenerator.js';
+import { evaluatePlanRisk } from '../services/riskService.js';
 
 const router: IRouter = Router();
 

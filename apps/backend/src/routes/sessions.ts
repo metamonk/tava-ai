@@ -1,12 +1,12 @@
 import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { eq, and, desc } from 'drizzle-orm';
-import { db } from '../db';
-import { therapySessions } from '../db/schema';
-import { requireAuth, requireRole } from '../middleware/auth';
-import { upload, uploadMemory } from '../config/multer';
-import { transcribeAudio } from '../services/aiService';
-import { evaluateSessionRisk } from '../services/riskService';
+import { db } from '../db/index.js';
+import { therapySessions } from '../db/schema.js';
+import { requireAuth, requireRole } from '../middleware/auth.js';
+import { upload, uploadMemory } from '../config/multer.js';
+import { transcribeAudio } from '../services/aiService.js';
+import { evaluateSessionRisk } from '../services/riskService.js';
 import fs from 'fs/promises';
 
 const router: IRouter = Router();

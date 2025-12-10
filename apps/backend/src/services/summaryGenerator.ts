@@ -1,4 +1,4 @@
-import { openai } from './aiService';
+import { openai } from './aiService.js';
 
 // TypeScript interfaces for session summaries
 export interface TherapistSummary {

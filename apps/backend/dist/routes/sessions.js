@@ -1,18 +1,13 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const express_1 = require("express");
-const drizzle_orm_1 = require("drizzle-orm");
-const db_1 = require("../db");
-const schema_1 = require("../db/schema");
-const auth_1 = require("../middleware/auth");
-const multer_1 = require("../config/multer");
-const aiService_1 = require("../services/aiService");
-const riskService_1 = require("../services/riskService");
-const promises_1 = __importDefault(require("fs/promises"));
-const router = (0, express_1.Router)();
+import { Router } from 'express';
+import { eq, and, desc } from 'drizzle-orm';
+import { db } from '../db/index.js';
+import { therapySessions } from '../db/schema.js';
+import { requireAuth, requireRole } from '../middleware/auth.js';
+import { upload, uploadMemory } from '../config/multer.js';
+import { transcribeAudio } from '../services/aiService.js';
+import { evaluateSessionRisk } from '../services/riskService.js';
+import fs from 'fs/promises';
+const router = Router();
 /**
  * Generate risk details based on risk level
  * Since detailed moderation results aren't stored, this provides
@@ -39,15 +34,15 @@ function getRiskDetails(riskLevel) {
     }
 }
 // POST /api/sessions - Create a new therapy session
-router.post('/', auth_1.requireAuth, (0, auth_1.requireRole)('therapist'), async (req, res) => {
+router.post('/', requireAuth, requireRole('therapist'), async (req, res) => {
     try {
         const { clientId, date } = req.body;
         if (!clientId) {
             res.status(400).json({ error: 'clientId is required' });
             return;
         }
-        const [session] = await db_1.db
-            .insert(schema_1.therapySessions)
+        const [session] = await db
+            .insert(therapySessions)
             .values({
             therapistId: req.user.id,
             clientId,
@@ -63,7 +58,7 @@ router.post('/', auth_1.requireAuth, (0, auth_1.requireRole)('therapist'), async
     }
 });
 // GET /api/sessions - Get sessions for authenticated user (therapist or client)
-router.get('/', auth_1.requireAuth, async (req, res) => {
+router.get('/', requireAuth, async (req, res) => {
     try {
         const { clientId } = req.query;
         const userRole = req.user.role;
@@ -72,27 +67,27 @@ router.get('/', auth_1.requireAuth, async (req, res) => {
         if (userRole === 'therapist') {
             // Therapists can see their sessions, optionally filtered by client
             if (clientId) {
-                sessions = await db_1.db
+                sessions = await db
                     .select()
-                    .from(schema_1.therapySessions)
-                    .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.therapySessions.therapistId, userId), (0, drizzle_orm_1.eq)(schema_1.therapySessions.clientId, clientId)))
-                    .orderBy((0, drizzle_orm_1.desc)(schema_1.therapySessions.date));
+                    .from(therapySessions)
+                    .where(and(eq(therapySessions.therapistId, userId), eq(therapySessions.clientId, clientId)))
+                    .orderBy(desc(therapySessions.date));
             }
             else {
-                sessions = await db_1.db
+                sessions = await db
                     .select()
-                    .from(schema_1.therapySessions)
-                    .where((0, drizzle_orm_1.eq)(schema_1.therapySessions.therapistId, userId))
-                    .orderBy((0, drizzle_orm_1.desc)(schema_1.therapySessions.date));
+                    .from(therapySessions)
+                    .where(eq(therapySessions.therapistId, userId))
+                    .orderBy(desc(therapySessions.date));
             }
         }
         else {
             // Clients can only see sessions where they are the client
-            sessions = await db_1.db
+            sessions = await db
                 .select()
-                .from(schema_1.therapySessions)
-                .where((0, drizzle_orm_1.eq)(schema_1.therapySessions.clientId, userId))
-                .orderBy((0, drizzle_orm_1.desc)(schema_1.therapySessions.date));
+                .from(therapySessions)
+                .where(eq(therapySessions.clientId, userId))
+                .orderBy(desc(therapySessions.date));
         }
         res.json({ sessions });
     }
@@ -102,10 +97,10 @@ router.get('/', auth_1.requireAuth, async (req, res) => {
     }
 });
 // GET /api/sessions/:id - Get specific session
-router.get('/:id', auth_1.requireAuth, async (req, res) => {
+router.get('/:id', requireAuth, async (req, res) => {
     try {
         const { id } = req.params;
-        const [session] = await db_1.db.select().from(schema_1.therapySessions).where((0, drizzle_orm_1.eq)(schema_1.therapySessions.id, id));
+        const [session] = await db.select().from(therapySessions).where(eq(therapySessions.id, id));
         if (!session) {
             res.status(404).json({ error: 'Session not found' });
             return;
@@ -134,7 +129,7 @@ router.get('/:id', auth_1.requireAuth, async (req, res) => {
     }
 });
 // POST /api/sessions/:id/transcript - Add or update transcript
-router.post('/:id/transcript', auth_1.requireAuth, (0, auth_1.requireRole)('therapist'), async (req, res) => {
+router.post('/:id/transcript', requireAuth, requireRole('therapist'), async (req, res) => {
     try {
         const { id } = req.params;
         const { transcript } = req.body;
@@ -143,21 +138,21 @@ router.post('/:id/transcript', auth_1.requireAuth, (0, auth_1.requireRole)('ther
             return;
         }
         // Verify session exists and belongs to therapist
-        const [existingSession] = await db_1.db
+        const [existingSession] = await db
             .select()
-            .from(schema_1.therapySessions)
-            .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.therapySessions.id, id), (0, drizzle_orm_1.eq)(schema_1.therapySessions.therapistId, req.user.id)));
+            .from(therapySessions)
+            .where(and(eq(therapySessions.id, id), eq(therapySessions.therapistId, req.user.id)));
         if (!existingSession) {
             res.status(404).json({ error: 'Session not found or access denied' });
             return;
         }
-        const [updatedSession] = await db_1.db
-            .update(schema_1.therapySessions)
+        const [updatedSession] = await db
+            .update(therapySessions)
             .set({
             transcript: transcript.trim(),
             updatedAt: new Date(),
         })
-            .where((0, drizzle_orm_1.eq)(schema_1.therapySessions.id, id))
+            .where(eq(therapySessions.id, id))
             .returning();
         res.json(updatedSession);
     }
@@ -167,7 +162,7 @@ router.post('/:id/transcript', auth_1.requireAuth, (0, auth_1.requireRole)('ther
     }
 });
 // POST /api/sessions/:id/audio - Upload audio file
-router.post('/:id/audio', auth_1.requireAuth, (0, auth_1.requireRole)('therapist'), multer_1.upload.single('audio'), async (req, res) => {
+router.post('/:id/audio', requireAuth, requireRole('therapist'), upload.single('audio'), async (req, res) => {
     try {
         const { id } = req.params;
         const file = req.file;
@@ -176,26 +171,26 @@ router.post('/:id/audio', auth_1.requireAuth, (0, auth_1.requireRole)('therapist
             return;
         }
         // Verify session exists and belongs to therapist
-        const [existingSession] = await db_1.db
+        const [existingSession] = await db
             .select()
-            .from(schema_1.therapySessions)
-            .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.therapySessions.id, id), (0, drizzle_orm_1.eq)(schema_1.therapySessions.therapistId, req.user.id)));
+            .from(therapySessions)
+            .where(and(eq(therapySessions.id, id), eq(therapySessions.therapistId, req.user.id)));
         if (!existingSession) {
-            await promises_1.default.unlink(file.path).catch(console.error);
+            await fs.unlink(file.path).catch(console.error);
             res.status(404).json({ error: 'Session not found or access denied' });
             return;
         }
         // Delete old audio file if it exists
         if (existingSession.audioFilePath) {
-            await promises_1.default.unlink(existingSession.audioFilePath).catch(console.error);
+            await fs.unlink(existingSession.audioFilePath).catch(console.error);
         }
-        await db_1.db
-            .update(schema_1.therapySessions)
+        await db
+            .update(therapySessions)
             .set({
             audioFilePath: file.path,
             updatedAt: new Date(),
         })
-            .where((0, drizzle_orm_1.eq)(schema_1.therapySessions.id, id));
+            .where(eq(therapySessions.id, id));
         res.json({
             message: 'Audio file uploaded successfully',
             filePath: file.path,
@@ -206,13 +201,13 @@ router.post('/:id/audio', auth_1.requireAuth, (0, auth_1.requireRole)('therapist
     catch (error) {
         console.error('Error uploading audio:', error);
         if (req.file) {
-            await promises_1.default.unlink(req.file.path).catch(console.error);
+            await fs.unlink(req.file.path).catch(console.error);
         }
         res.status(500).json({ error: 'Failed to upload audio file' });
     }
 });
 // POST /api/sessions/:id/transcribe - Transcribe audio file using Whisper
-router.post('/:id/transcribe', auth_1.requireAuth, (0, auth_1.requireRole)('therapist'), multer_1.uploadMemory.single('audio'), async (req, res) => {
+router.post('/:id/transcribe', requireAuth, requireRole('therapist'), uploadMemory.single('audio'), async (req, res) => {
     try {
         const { id } = req.params;
         if (!req.file) {
@@ -220,7 +215,7 @@ router.post('/:id/transcribe', auth_1.requireAuth, (0, auth_1.requireRole)('ther
             return;
         }
         // Get session and verify ownership
-        const [session] = await db_1.db.select().from(schema_1.therapySessions).where((0, drizzle_orm_1.eq)(schema_1.therapySessions.id, id));
+        const [session] = await db.select().from(therapySessions).where(eq(therapySessions.id, id));
         if (!session) {
             res.status(404).json({ error: 'Session not found' });
             return;
@@ -230,14 +225,14 @@ router.post('/:id/transcribe', auth_1.requireAuth, (0, auth_1.requireRole)('ther
             return;
         }
         // Transcribe audio using Whisper
-        const transcript = await (0, aiService_1.transcribeAudio)(req.file.buffer, req.file.mimetype);
+        const transcript = await transcribeAudio(req.file.buffer, req.file.mimetype);
         // Update session with transcript
-        await db_1.db
-            .update(schema_1.therapySessions)
+        await db
+            .update(therapySessions)
             .set({ transcript, updatedAt: new Date() })
-            .where((0, drizzle_orm_1.eq)(schema_1.therapySessions.id, id));
+            .where(eq(therapySessions.id, id));
         // Evaluate risk level after transcription (non-blocking, log errors)
-        (0, riskService_1.evaluateSessionRisk)(id).catch((error) => {
+        evaluateSessionRisk(id).catch((error) => {
             console.error('Risk evaluation failed for session', id, error);
         });
         res.json({ transcript });
@@ -247,4 +242,4 @@ router.post('/:id/transcribe', auth_1.requireAuth, (0, auth_1.requireRole)('ther
         res.status(500).json({ error: 'Transcription failed' });
     }
 });
-exports.default = router;
+export default router;

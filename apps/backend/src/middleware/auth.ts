@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { fromNodeHeaders } from 'better-auth/node';
-import { auth } from '../auth/config';
+import { auth } from '../auth/config.js';
 
 // User type with role field
 interface AuthUser {

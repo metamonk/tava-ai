@@ -1,7 +1,7 @@
 import { eq } from 'drizzle-orm';
-import { db } from '../db';
-import { therapySessions } from '../db/schema';
-import { evaluateContentRisk, type RiskLevel } from './moderationService';
+import { db } from '../db/index.js';
+import { therapySessions } from '../db/schema.js';
+import { evaluateContentRisk, type RiskLevel } from './moderationService.js';
 
 /**
  * Evaluate risk level for a session based on its transcript

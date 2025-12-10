@@ -1,22 +1,18 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.evaluateSessionRisk = evaluateSessionRisk;
-exports.evaluatePlanRisk = evaluatePlanRisk;
-const drizzle_orm_1 = require("drizzle-orm");
-const db_1 = require("../db");
-const schema_1 = require("../db/schema");
-const moderationService_1 = require("./moderationService");
+import { eq } from 'drizzle-orm';
+import { db } from '../db/index.js';
+import { therapySessions } from '../db/schema.js';
+import { evaluateContentRisk } from './moderationService.js';
 /**
  * Evaluate risk level for a session based on its transcript
  * Updates the session's riskLevel in the database
  */
-async function evaluateSessionRisk(sessionId) {
+export async function evaluateSessionRisk(sessionId) {
     try {
         // Fetch session
-        const [session] = await db_1.db
+        const [session] = await db
             .select()
-            .from(schema_1.therapySessions)
-            .where((0, drizzle_orm_1.eq)(schema_1.therapySessions.id, sessionId));
+            .from(therapySessions)
+            .where(eq(therapySessions.id, sessionId));
         if (!session) {
             throw new Error('Session not found');
         }
@@ -24,15 +20,15 @@ async function evaluateSessionRisk(sessionId) {
             throw new Error('Session has no transcript to evaluate');
         }
         // Evaluate risk using moderation API
-        const riskLevel = await (0, moderationService_1.evaluateContentRisk)(session.transcript);
+        const riskLevel = await evaluateContentRisk(session.transcript);
         // Update session with risk level
-        await db_1.db
-            .update(schema_1.therapySessions)
+        await db
+            .update(therapySessions)
             .set({
             riskLevel,
             updatedAt: new Date(),
         })
-            .where((0, drizzle_orm_1.eq)(schema_1.therapySessions.id, sessionId));
+            .where(eq(therapySessions.id, sessionId));
         console.log(`Session ${sessionId} risk level evaluated: ${riskLevel}`);
         return riskLevel;
     }
@@ -45,9 +41,9 @@ async function evaluateSessionRisk(sessionId) {
  * Evaluate risk level for plan text (without storing)
  * Useful for evaluating AI-generated plans before saving
  */
-async function evaluatePlanRisk(planText) {
+export async function evaluatePlanRisk(planText) {
     try {
-        return await (0, moderationService_1.evaluateContentRisk)(planText);
+        return await evaluateContentRisk(planText);
     }
     catch (error) {
         console.error('Error evaluating plan risk:', error);

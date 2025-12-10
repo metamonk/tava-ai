@@ -1,15 +1,10 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.moderateContent = moderateContent;
-exports.mapModerationToRiskLevel = mapModerationToRiskLevel;
-exports.evaluateContentRisk = evaluateContentRisk;
-const aiService_1 = require("./aiService");
+import { openai } from './aiService.js';
 /**
  * Call OpenAI Moderation API to analyze content for safety concerns
  */
-async function moderateContent(text) {
+export async function moderateContent(text) {
     try {
-        const response = await aiService_1.openai.moderations.create({
+        const response = await openai.moderations.create({
             model: 'text-moderation-latest',
             input: text,
         });
@@ -34,7 +29,7 @@ async function moderateContent(text) {
  * - LOW: any category flagged OR any score > 0.2
  * - NONE: all scores <= 0.2 and nothing flagged
  */
-function mapModerationToRiskLevel(moderation) {
+export function mapModerationToRiskLevel(moderation) {
     const { categories, category_scores } = moderation;
     // HIGH RISK: Self-harm intent/instructions or very high scores
     if (categories['self-harm/intent'] ||
@@ -59,7 +54,7 @@ function mapModerationToRiskLevel(moderation) {
 /**
  * Combined function: moderate content and return risk level
  */
-async function evaluateContentRisk(text) {
+export async function evaluateContentRisk(text) {
     const moderationResult = await moderateContent(text);
     return mapModerationToRiskLevel(moderationResult);
 }

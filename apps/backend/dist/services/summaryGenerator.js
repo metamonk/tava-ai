@@ -1,9 +1,4 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.generateTherapistSummary = generateTherapistSummary;
-exports.generateClientSummary = generateClientSummary;
-exports.generateSessionSummary = generateSessionSummary;
-const aiService_1 = require("./aiService");
+import { openai } from './aiService.js';
 // GPT-4 THERAPIST SUMMARY GENERATION
 const THERAPIST_SUMMARY_PROMPT = `You are a licensed clinical psychologist creating a session summary from a therapy session transcript.
 
@@ -24,11 +19,11 @@ Respond with ONLY valid JSON matching this schema:
   "progressNotes": string,
   "followUpItems": string[]
 }`;
-async function generateTherapistSummary(transcript, sessionDate, maxRetries = 3) {
+export async function generateTherapistSummary(transcript, sessionDate, maxRetries = 3) {
     let lastError = null;
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
         try {
-            const completion = await aiService_1.openai.chat.completions.create({
+            const completion = await openai.chat.completions.create({
                 model: 'gpt-4-turbo-preview',
                 messages: [
                     { role: 'system', content: THERAPIST_SUMMARY_PROMPT },
@@ -92,11 +87,11 @@ Respond with ONLY valid JSON matching this schema:
   "encouragement": string (2-3 sentences of genuine encouragement and validation),
   "nextSteps": string[] (2-3 simple, specific actions or things to practice before next session)
 }`;
-async function generateClientSummary(transcript, sessionDate, maxRetries = 3) {
+export async function generateClientSummary(transcript, sessionDate, maxRetries = 3) {
     let lastError = null;
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
         try {
-            const completion = await aiService_1.openai.chat.completions.create({
+            const completion = await openai.chat.completions.create({
                 model: 'gpt-4-turbo-preview',
                 messages: [
                     { role: 'system', content: CLIENT_SUMMARY_PROMPT },
@@ -136,7 +131,7 @@ async function generateClientSummary(transcript, sessionDate, maxRetries = 3) {
     throw lastError || new Error('Client summary generation failed');
 }
 // Combined function to generate both summaries
-async function generateSessionSummary(transcript, sessionDate) {
+export async function generateSessionSummary(transcript, sessionDate) {
     const [therapistSummary, clientSummary] = await Promise.all([
         generateTherapistSummary(transcript, sessionDate),
         generateClientSummary(transcript, sessionDate),
