@@ -181,7 +181,7 @@ const SectionHeader = React.forwardRef<HTMLDivElement, SectionHeaderProps>(
         {description && (
           <p
             className={cn(
-              'text-base sm:text-lg text-[#6b7280] leading-relaxed text-balance',
+              'text-base sm:text-lg text-[#6b7280] dark:text-[#9ca3af] leading-relaxed text-balance',
               align === 'center' && 'max-w-2xl mx-auto'
             )}
           >
@@ -327,7 +327,7 @@ const Divider = React.forwardRef<HTMLHRElement, DividerProps>(
       solid: 'bg-[#e8e6e1] dark:bg-[#2a2f35]',
       dashed:
         'bg-[#e8e6e1] dark:bg-[#2a2f35] [mask-image:repeating-linear-gradient(90deg,transparent,transparent_4px,black_4px,black_8px)]',
-      gradient: 'bg-gradient-to-r from-transparent via-[#e8e6e1] dark:via-[#2a2f35] to-transparent',
+      gradient: 'bg-linear-to-r from-transparent via-[#e8e6e1] dark:via-[#2a2f35] to-transparent',
     };
 
     return (

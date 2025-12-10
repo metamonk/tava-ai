@@ -68,11 +68,11 @@ export default function ClientDetailPage() {
   const getRiskBadgeClass = (riskLevel: string) => {
     switch (riskLevel) {
       case 'high':
-        return 'bg-red-100 text-red-800';
+        return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300';
       case 'medium':
-        return 'bg-orange-100 text-orange-800';
+        return 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300';
       case 'low':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300';
       default:
         return '';
     }
@@ -80,9 +80,13 @@ export default function ClientDetailPage() {
 
   if (authLoading || loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-[#0f1114]">
         <div className="flex items-center gap-3">
-          <svg className="animate-spin h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24">
+          <svg
+            className="animate-spin h-8 w-8 text-blue-600 dark:text-blue-400"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
             <circle
               className="opacity-25"
               cx="12"
@@ -97,7 +101,7 @@ export default function ClientDetailPage() {
               d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
             />
           </svg>
-          <span className="text-gray-600">Loading...</span>
+          <span className="text-gray-600 dark:text-[#9ca3af]">Loading...</span>
         </div>
       </div>
     );
@@ -105,12 +109,12 @@ export default function ClientDetailPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50 dark:bg-[#0f1114]">
         <div className="max-w-6xl mx-auto p-8">
           <div className="mb-6">
             <Link
               href="/therapist/dashboard"
-              className="text-blue-600 hover:text-blue-800 flex items-center gap-2"
+              className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 flex items-center gap-2"
             >
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path
@@ -123,8 +127,8 @@ export default function ClientDetailPage() {
               Back to Dashboard
             </Link>
           </div>
-          <div className="p-6 bg-red-50 border border-red-200 rounded-md">
-            <p className="text-red-700">{error}</p>
+          <div className="p-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 rounded-md">
+            <p className="text-red-700 dark:text-red-300">{error}</p>
           </div>
         </div>
       </div>
@@ -136,13 +140,13 @@ export default function ClientDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-[#0f1114]">
       <div className="max-w-6xl mx-auto p-8">
         {/* Back navigation */}
         <div className="mb-6">
           <Link
             href="/therapist/dashboard"
-            className="text-blue-600 hover:text-blue-800 flex items-center gap-2"
+            className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 flex items-center gap-2"
           >
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path
@@ -158,23 +162,27 @@ export default function ClientDetailPage() {
 
         {/* Client header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">{clientData.client.name}</h1>
-          <p className="text-gray-600 mt-1">{clientData.client.email}</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-[#f5f3ef]">
+            {clientData.client.name}
+          </h1>
+          <p className="text-gray-600 dark:text-[#9ca3af] mt-1">{clientData.client.email}</p>
         </div>
 
         {/* Session history */}
         <div>
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold text-gray-900">Session History</h2>
-            <span className="text-sm text-gray-500">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-[#f5f3ef]">
+              Session History
+            </h2>
+            <span className="text-sm text-gray-500 dark:text-[#9ca3af]">
               {clientData.sessions.length} session{clientData.sessions.length !== 1 ? 's' : ''}
             </span>
           </div>
 
           {clientData.sessions.length === 0 ? (
-            <div className="p-8 bg-white rounded-lg shadow-sm text-center">
+            <div className="p-8 bg-white dark:bg-[#161a1d] rounded-lg shadow-sm dark:shadow-none dark:border dark:border-[#2a2f35] text-center">
               <svg
-                className="mx-auto h-12 w-12 text-gray-400"
+                className="mx-auto h-12 w-12 text-gray-400 dark:text-[#6b7280]"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -186,7 +194,9 @@ export default function ClientDetailPage() {
                   d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                 />
               </svg>
-              <p className="mt-2 text-gray-500">No sessions with this client yet</p>
+              <p className="mt-2 text-gray-500 dark:text-[#9ca3af]">
+                No sessions with this client yet
+              </p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -194,11 +204,11 @@ export default function ClientDetailPage() {
                 <div
                   key={session.id}
                   onClick={() => router.push(`/therapist/sessions/${session.id}`)}
-                  className="p-4 bg-white rounded-lg shadow-sm hover:shadow-md cursor-pointer transition-shadow border border-gray-100"
+                  className="p-4 bg-white dark:bg-[#161a1d] rounded-lg shadow-sm dark:shadow-none hover:shadow-md dark:hover:shadow-none cursor-pointer transition-shadow border border-gray-100 dark:border-[#2a2f35] dark:hover:border-[#3d4449]"
                 >
                   <div className="flex justify-between items-center">
                     <div>
-                      <div className="font-semibold text-gray-900">
+                      <div className="font-semibold text-gray-900 dark:text-[#f5f3ef]">
                         Session -{' '}
                         {new Date(session.date).toLocaleDateString('en-US', {
                           year: 'numeric',
@@ -207,7 +217,7 @@ export default function ClientDetailPage() {
                         })}
                       </div>
                       {session.planId && (
-                        <div className="text-sm text-gray-600 mt-1">
+                        <div className="text-sm text-gray-600 dark:text-[#9ca3af] mt-1">
                           Treatment Plan v{session.planVersion}
                         </div>
                       )}
@@ -221,7 +231,7 @@ export default function ClientDetailPage() {
                         </span>
                       )}
                       <svg
-                        className="h-5 w-5 text-gray-400"
+                        className="h-5 w-5 text-gray-400 dark:text-[#6b7280]"
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"

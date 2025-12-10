@@ -35,7 +35,7 @@ const cardVariants = cva(
           'border border-[#e8e6e1] dark:border-[#2a2f35]',
           'cursor-pointer',
           'hover:-translate-y-1 hover:shadow-xl',
-          'hover:border-[#c4907a]/30',
+          'hover:border-[#c4907a]/30 dark:hover:border-[#c4907a]/40',
         ],
         // Gradient - Card with gradient border
         gradient: [
@@ -168,7 +168,7 @@ const CardDescription = React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLParagraphElement>
 >(({ className, ...props }, ref) => (
-  <p ref={ref} className={cn('text-sm text-[#6b7280]', className)} {...props} />
+  <p ref={ref} className={cn('text-sm text-[#6b7280] dark:text-[#9ca3af]', className)} {...props} />
 ));
 CardDescription.displayName = 'CardDescription';
 

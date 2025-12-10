@@ -25,8 +25,9 @@ const buttonVariants = cva(
         // Primary - Gradient terracotta, white text
         primary: [
           'text-white',
-          'bg-gradient-to-r from-[#c4907a] to-[#a67462]',
+          'bg-linear-to-r from-[#c4907a] to-[#a67462]',
           'hover:from-[#d4a08a] hover:to-[#b68472]',
+          'dark:hover:from-[#d4a08a] dark:hover:to-[#b68472]',
           'focus-visible:ring-[#c4907a]',
           'shadow-md hover:shadow-lg',
           'hover:-translate-y-0.5',
@@ -65,11 +66,17 @@ const buttonVariants = cva(
         // Link - Text link style
         link: [
           'text-[#c4907a]',
+          'dark:text-[#d4a08a]',
           'underline-offset-4 hover:underline',
           'focus-visible:ring-[#c4907a]',
         ],
         // Destructive - For dangerous actions
-        destructive: ['text-white', 'bg-red-500', 'hover:bg-red-600', 'focus-visible:ring-red-500'],
+        destructive: [
+          'text-white',
+          'bg-red-500 dark:bg-red-600',
+          'hover:bg-red-600 dark:hover:bg-red-500',
+          'focus-visible:ring-red-500',
+        ],
         // Glass - Glassmorphism style
         glass: [
           'text-[#1a1d21] dark:text-[#f5f3ef]',

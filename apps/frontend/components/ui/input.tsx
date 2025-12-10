@@ -16,7 +16,7 @@ const inputVariants = cva(
     'flex w-full',
     'font-body text-base',
     'text-[#1a1d21] dark:text-[#f5f3ef]',
-    'placeholder:text-[#6b7280]/60',
+    'placeholder:text-[#6b7280]/60 dark:placeholder:text-[#9ca3af]/60',
     'transition-all duration-200',
     'focus:outline-none',
     'disabled:cursor-not-allowed disabled:opacity-50',
@@ -143,13 +143,15 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     return (
       <div className="relative">
         {hasLeftIcon && (
-          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#6b7280]">{leftIcon}</div>
+          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#6b7280] dark:text-[#9ca3af]">
+            {leftIcon}
+          </div>
         )}
 
         {inputElement}
 
         {hasRightIcon && (
-          <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[#6b7280]">
+          <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[#6b7280] dark:text-[#9ca3af]">
             {rightIcon}
           </div>
         )}
@@ -236,7 +238,7 @@ const InputGroup = React.forwardRef<HTMLDivElement, InputGroupProps>(
           </label>
         )}
         {children}
-        {helperText && <p className="text-sm text-[#6b7280]">{helperText}</p>}
+        {helperText && <p className="text-sm text-[#6b7280] dark:text-[#9ca3af]">{helperText}</p>}
       </div>
     );
   }

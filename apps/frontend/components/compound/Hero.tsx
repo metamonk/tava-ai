@@ -197,7 +197,7 @@ const Hero = React.forwardRef<HTMLElement, HeroProps>(
               <p
                 className={cn(
                   'animate-reveal-up delay-200',
-                  'text-lg sm:text-xl text-[#6b7280] leading-relaxed text-balance mb-12',
+                  'text-lg sm:text-xl text-[#6b7280] dark:text-[#9ca3af] leading-relaxed text-balance mb-12',
                   variant === 'centered' && 'max-w-2xl mx-auto'
                 )}
               >

@@ -1,3 +1,4 @@
+import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import Link from 'next/link';
 
 export default function Home() {
@@ -104,6 +105,8 @@ export default function Home() {
             <span className="text-sm font-medium text-[#5a6b52]">
               Trusted by 500+ mental health professionals
             </span>
+
+            <ThemeToggle />
           </div>
 
           {/* Main Headline */}
@@ -376,17 +379,17 @@ export default function Home() {
       </section>
 
       {/* How It Works Section */}
-      <section id="how-it-works" className="relative py-32 px-6 bg-[#1a1d21] dark:bg-[#0a0c0e]">
+      <section id="how-it-works" className="relative py-32 px-6 bg-[#faf8f5] dark:bg-[#1a1d21]">
         <div className="max-w-7xl mx-auto">
           {/* Section Header */}
           <div className="text-center mb-20">
             <span className="text-sm font-semibold uppercase tracking-wider text-[#c4907a]">
               Process
             </span>
-            <h2 className="font-display text-4xl sm:text-5xl md:text-6xl font-semibold tracking-tight text-white mt-4 mb-6">
+            <h2 className="font-display text-4xl sm:text-5xl md:text-6xl font-semibold tracking-tight text-[#1a1d21] dark:text-white mt-4 mb-6">
               Simple. Powerful. Human.
             </h2>
-            <p className="text-lg text-[#9ca3af] max-w-2xl mx-auto">
+            <p className="text-lg text-[#6b7280] dark:text-[#9ca3af] max-w-2xl mx-auto">
               From session recording to actionable treatment plans in three seamless steps.
             </p>
           </div>
@@ -400,8 +403,12 @@ export default function Home() {
                 description:
                   'Record your therapy session or upload an existing audio file. Our AI handles the rest.',
                 visual: (
-                  <div className="relative w-full aspect-[4/3] rounded-2xl bg-gradient-to-br from-[#2a2f35] to-[#1a1d21] overflow-hidden">
-                    <div className="absolute inset-4 flex flex-col items-center justify-center border-2 border-dashed border-[#3d4449] rounded-xl">
+                  <div className="relative w-full aspect-[4/3] rounded-2xl border border-[#e8e6e1] dark:border-[#2a2f35] overflow-hidden">
+                    {/* Light mode background */}
+                    <div className="absolute inset-0 bg-white dark:hidden" />
+                    {/* Dark mode background */}
+                    <div className="absolute inset-0 hidden dark:block bg-gradient-to-br from-[#2a2f35] to-[#1a1d21]" />
+                    <div className="relative h-full flex flex-col items-center justify-center border-2 border-dashed border-[#e8e6e1] dark:border-[#3d4449] rounded-xl m-4">
                       <svg
                         className="w-12 h-12 text-[#c4907a] mb-3"
                         fill="none"
@@ -426,20 +433,24 @@ export default function Home() {
                 description:
                   'Advanced AI transcribes, analyzes themes, identifies risks, and extracts clinical insights.',
                 visual: (
-                  <div className="relative w-full aspect-[4/3] rounded-2xl bg-gradient-to-br from-[#2a2f35] to-[#1a1d21] overflow-hidden p-6">
-                    <div className="space-y-3">
+                  <div className="relative w-full aspect-[4/3] rounded-2xl border border-[#e8e6e1] dark:border-[#2a2f35] overflow-hidden">
+                    {/* Light mode background */}
+                    <div className="absolute inset-0 bg-white dark:hidden" />
+                    {/* Dark mode background */}
+                    <div className="absolute inset-0 hidden dark:block bg-gradient-to-br from-[#2a2f35] to-[#1a1d21]" />
+                    <div className="relative p-6 space-y-3">
                       {[
                         { label: 'Transcribing', progress: 100 },
                         { label: 'Analyzing themes', progress: 100 },
                         { label: 'Risk assessment', progress: 75 },
                         { label: 'Generating plan', progress: 40 },
-                      ].map((item, i) => (
+                      ].map((item) => (
                         <div key={item.label}>
                           <div className="flex justify-between text-xs mb-1">
-                            <span className="text-[#9ca3af]">{item.label}</span>
+                            <span className="text-[#3d4449] dark:text-[#9ca3af]">{item.label}</span>
                             <span className="text-[#6b7280]">{item.progress}%</span>
                           </div>
-                          <div className="h-1.5 bg-[#3d4449] rounded-full overflow-hidden">
+                          <div className="h-1.5 bg-[#e8e6e1] dark:bg-[#3d4449] rounded-full overflow-hidden">
                             <div
                               className="h-full bg-gradient-to-r from-[#c4907a] to-[#a8b5a0] rounded-full transition-all"
                               style={{ width: `${item.progress}%` }}
@@ -457,9 +468,13 @@ export default function Home() {
                 description:
                   'Get clinical notes for your records and client-friendly summaries to share.',
                 visual: (
-                  <div className="relative w-full aspect-[4/3] rounded-2xl bg-gradient-to-br from-[#2a2f35] to-[#1a1d21] overflow-hidden p-4">
-                    <div className="grid grid-cols-2 gap-3 h-full">
-                      <div className="rounded-xl bg-[#1a1d21] border border-[#3d4449] p-3">
+                  <div className="relative w-full aspect-[4/3] rounded-2xl border border-[#e8e6e1] dark:border-[#2a2f35] overflow-hidden">
+                    {/* Light mode background */}
+                    <div className="absolute inset-0 bg-white dark:hidden" />
+                    {/* Dark mode background */}
+                    <div className="absolute inset-0 hidden dark:block bg-gradient-to-br from-[#2a2f35] to-[#1a1d21]" />
+                    <div className="relative grid grid-cols-2 gap-3 h-full p-4">
+                      <div className="rounded-xl bg-[#faf8f5] dark:bg-[#1a1d21] border border-[#e8e6e1] dark:border-[#3d4449] p-3">
                         <div className="flex items-center gap-2 mb-2">
                           <div className="w-6 h-6 rounded-full bg-[#a8b5a0]/20 flex items-center justify-center">
                             <svg
@@ -476,15 +491,17 @@ export default function Home() {
                               />
                             </svg>
                           </div>
-                          <span className="text-xs font-medium text-[#9ca3af]">Clinical</span>
+                          <span className="text-xs font-medium text-[#3d4449] dark:text-[#9ca3af]">
+                            Clinical
+                          </span>
                         </div>
                         <div className="space-y-1.5">
-                          <div className="h-1.5 bg-[#3d4449] rounded w-full" />
-                          <div className="h-1.5 bg-[#3d4449] rounded w-4/5" />
-                          <div className="h-1.5 bg-[#3d4449] rounded w-3/4" />
+                          <div className="h-1.5 bg-[#e8e6e1] dark:bg-[#3d4449] rounded w-full" />
+                          <div className="h-1.5 bg-[#e8e6e1] dark:bg-[#3d4449] rounded w-4/5" />
+                          <div className="h-1.5 bg-[#e8e6e1] dark:bg-[#3d4449] rounded w-3/4" />
                         </div>
                       </div>
-                      <div className="rounded-xl bg-[#1a1d21] border border-[#3d4449] p-3">
+                      <div className="rounded-xl bg-[#faf8f5] dark:bg-[#1a1d21] border border-[#e8e6e1] dark:border-[#3d4449] p-3">
                         <div className="flex items-center gap-2 mb-2">
                           <div className="w-6 h-6 rounded-full bg-[#c4907a]/20 flex items-center justify-center">
                             <svg
@@ -501,12 +518,14 @@ export default function Home() {
                               />
                             </svg>
                           </div>
-                          <span className="text-xs font-medium text-[#9ca3af]">Client</span>
+                          <span className="text-xs font-medium text-[#3d4449] dark:text-[#9ca3af]">
+                            Client
+                          </span>
                         </div>
                         <div className="space-y-1.5">
-                          <div className="h-1.5 bg-[#3d4449] rounded w-full" />
-                          <div className="h-1.5 bg-[#3d4449] rounded w-3/5" />
-                          <div className="h-1.5 bg-[#3d4449] rounded w-4/5" />
+                          <div className="h-1.5 bg-[#e8e6e1] dark:bg-[#3d4449] rounded w-full" />
+                          <div className="h-1.5 bg-[#e8e6e1] dark:bg-[#3d4449] rounded w-3/5" />
+                          <div className="h-1.5 bg-[#e8e6e1] dark:bg-[#3d4449] rounded w-4/5" />
                         </div>
                       </div>
                     </div>
@@ -517,7 +536,7 @@ export default function Home() {
               <div key={item.step} className="relative">
                 {/* Connector line */}
                 {index < 2 && (
-                  <div className="hidden lg:block absolute top-1/4 -right-2 w-4 h-px bg-gradient-to-r from-[#3d4449] to-transparent" />
+                  <div className="hidden lg:block absolute top-1/4 -right-2 w-4 h-px bg-gradient-to-r from-[#e8e6e1] dark:from-[#3d4449] to-transparent" />
                 )}
 
                 <div className="text-center lg:text-left">
@@ -529,10 +548,12 @@ export default function Home() {
                     {item.step}
                   </span>
 
-                  <h3 className="font-display text-2xl font-semibold text-white mb-3">
+                  <h3 className="font-display text-2xl font-semibold text-[#1a1d21] dark:text-white mb-3">
                     {item.title}
                   </h3>
-                  <p className="text-[#9ca3af] leading-relaxed">{item.description}</p>
+                  <p className="text-[#6b7280] dark:text-[#9ca3af] leading-relaxed">
+                    {item.description}
+                  </p>
                 </div>
               </div>
             ))}
@@ -617,19 +638,19 @@ export default function Home() {
         <div className="max-w-4xl mx-auto">
           <div className="relative rounded-[2.5rem] overflow-hidden">
             {/* Background gradient */}
-            <div className="absolute inset-0 bg-gradient-to-br from-[#1a1d21] via-[#2a2f35] to-[#1a1d21]" />
+            <div className="absolute inset-0 bg-gradient-to-br from-[#c4907a] via-[#a8b5a0] to-[#c4907a] dark:from-[#1a1d21] dark:via-[#2a2f35] dark:to-[#1a1d21]" />
 
             {/* Decorative orbs */}
             <div
               className="absolute -top-20 -right-20 w-80 h-80 rounded-full animate-drift"
               style={{
-                background: 'radial-gradient(circle, rgba(196, 144, 122, 0.3), transparent 60%)',
+                background: 'radial-gradient(circle, rgba(255, 255, 255, 0.2), transparent 60%)',
               }}
             />
             <div
               className="absolute -bottom-20 -left-20 w-60 h-60 rounded-full animate-drift"
               style={{
-                background: 'radial-gradient(circle, rgba(168, 181, 160, 0.2), transparent 60%)',
+                background: 'radial-gradient(circle, rgba(255, 255, 255, 0.15), transparent 60%)',
                 animationDelay: '-5s',
               }}
             />
@@ -639,14 +660,14 @@ export default function Home() {
               <h2 className="font-display text-4xl sm:text-5xl md:text-6xl font-semibold tracking-tight text-white mb-6">
                 Ready to transform your practice?
               </h2>
-              <p className="text-lg text-[#9ca3af] max-w-xl mx-auto mb-10">
+              <p className="text-lg text-white/80 dark:text-[#9ca3af] max-w-xl mx-auto mb-10">
                 Join hundreds of mental health professionals who are saving time and delivering
                 better care with Tava.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <Link
                   href="/signup"
-                  className="group px-8 py-4 text-base font-semibold text-[#1a1d21] bg-white rounded-full hover:bg-[#f5f3ef] transition-colors"
+                  className="group px-8 py-4 text-base font-semibold text-[#c4907a] dark:text-[#1a1d21] bg-white rounded-full hover:bg-[#f5f3ef] transition-colors"
                 >
                   <span className="flex items-center gap-2">
                     Start Free Trial

@@ -19,19 +19,22 @@ export default function ErrorBanner({
 
   const variantStyles = {
     error: {
-      container: 'bg-red-50 border-red-200 text-red-900',
-      icon: 'text-red-600',
-      detailsText: 'text-red-700',
+      container:
+        'bg-red-50 border-red-200 text-red-900 dark:bg-red-900/20 dark:border-red-800/30 dark:text-red-300',
+      icon: 'text-red-600 dark:text-red-400',
+      detailsText: 'text-red-700 dark:text-red-300',
     },
     warning: {
-      container: 'bg-yellow-50 border-yellow-200 text-yellow-900',
-      icon: 'text-yellow-600',
-      detailsText: 'text-yellow-700',
+      container:
+        'bg-yellow-50 border-yellow-200 text-yellow-900 dark:bg-yellow-900/20 dark:border-yellow-800/30 dark:text-yellow-300',
+      icon: 'text-yellow-600 dark:text-yellow-400',
+      detailsText: 'text-yellow-700 dark:text-yellow-300',
     },
     info: {
-      container: 'bg-blue-50 border-blue-200 text-blue-900',
-      icon: 'text-blue-600',
-      detailsText: 'text-blue-700',
+      container:
+        'bg-blue-50 border-blue-200 text-blue-900 dark:bg-blue-900/20 dark:border-blue-800/30 dark:text-blue-300',
+      icon: 'text-blue-600 dark:text-blue-400',
+      detailsText: 'text-blue-700 dark:text-blue-300',
     },
   };
 
@@ -115,7 +118,7 @@ export default function ErrorBanner({
         {onDismiss && (
           <button
             onClick={handleDismiss}
-            className="flex-shrink-0 p-1 hover:bg-white hover:bg-opacity-50 rounded transition-colors"
+            className="flex-shrink-0 p-1 hover:bg-white hover:bg-opacity-50 dark:hover:bg-black dark:hover:bg-opacity-30 rounded transition-colors"
             aria-label="Dismiss"
           >
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -140,7 +143,7 @@ interface InlineErrorProps {
 
 export function InlineError({ message, className = '' }: InlineErrorProps) {
   return (
-    <p className={`text-sm text-red-600 mt-1 ${className}`} role="alert">
+    <p className={`text-sm text-red-600 dark:text-red-400 mt-1 ${className}`} role="alert">
       {message}
     </p>
   );
@@ -158,9 +161,12 @@ export function FormErrorSummary({
   if (errors.length === 0) return null;
 
   return (
-    <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4" role="alert">
-      <h3 className="text-sm font-medium text-red-800 mb-2">{title}</h3>
-      <ul className="list-disc list-inside text-sm text-red-700 space-y-1">
+    <div
+      className="bg-red-50 border border-red-200 dark:bg-red-900/20 dark:border-red-800/30 rounded-lg p-4 mb-4"
+      role="alert"
+    >
+      <h3 className="text-sm font-medium text-red-800 dark:text-red-300 mb-2">{title}</h3>
+      <ul className="list-disc list-inside text-sm text-red-700 dark:text-red-300 space-y-1">
         {errors.map((error, index) => (
           <li key={index}>{error}</li>
         ))}

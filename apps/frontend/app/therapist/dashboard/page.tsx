@@ -98,11 +98,11 @@ export default function TherapistDashboard() {
   const getRiskBadgeClass = (riskLevel: string) => {
     switch (riskLevel) {
       case 'high':
-        return 'bg-red-100 text-red-800';
+        return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300';
       case 'medium':
-        return 'bg-orange-100 text-orange-800';
+        return 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300';
       case 'low':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300';
       default:
         return '';
     }
@@ -118,9 +118,13 @@ export default function TherapistDashboard() {
 
   if (authLoading || loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-[#0f1114]">
         <div className="flex items-center gap-3">
-          <svg className="animate-spin h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24">
+          <svg
+            className="animate-spin h-8 w-8 text-blue-600 dark:text-blue-400"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
             <circle
               className="opacity-25"
               cx="12"
@@ -135,25 +139,27 @@ export default function TherapistDashboard() {
               d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
             />
           </svg>
-          <span className="text-gray-600">Loading...</span>
+          <span className="text-gray-600 dark:text-[#9ca3af]">Loading...</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-[#0f1114]">
       {/* Header */}
-      <header className="bg-white shadow-sm">
+      <header className="bg-white dark:bg-[#161a1d] shadow-sm dark:shadow-none dark:border-b dark:border-[#2a2f35]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Therapist Dashboard</h1>
-            <p className="text-sm text-gray-600">Welcome, {user?.name}</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-[#f5f3ef]">
+              Therapist Dashboard
+            </h1>
+            <p className="text-sm text-gray-600 dark:text-[#9ca3af]">Welcome, {user?.name}</p>
           </div>
           <div className="flex gap-3">
             <button
               onClick={() => setShowNewSessionModal(true)}
-              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors flex items-center gap-2"
+              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-400 transition-colors flex items-center gap-2"
             >
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path
@@ -167,7 +173,7 @@ export default function TherapistDashboard() {
             </button>
             <button
               onClick={handleLogout}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+              className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-[#d1d5db] bg-white dark:bg-[#161a1d] border border-gray-300 dark:border-[#3d4449] rounded-md hover:bg-gray-50 dark:hover:bg-[#1a1d21] transition-colors"
             >
               Sign out
             </button>
@@ -177,27 +183,29 @@ export default function TherapistDashboard() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-md">
-            <p className="text-sm text-red-700">{error}</p>
+          <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 rounded-md">
+            <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
           </div>
         )}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Clients List */}
           <div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Your Clients</h2>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-[#f5f3ef] mb-4">
+              Your Clients
+            </h2>
             <input
               type="text"
               placeholder="Search clients..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 mb-4"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-[#3d4449] dark:bg-[#1a1d21] dark:text-[#f5f3ef] dark:placeholder-[#6b7280] rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 mb-4"
             />
             <div className="space-y-3">
               {filteredClients.length === 0 ? (
-                <div className="p-8 bg-white rounded-lg shadow-sm text-center">
+                <div className="p-8 bg-white dark:bg-[#161a1d] rounded-lg shadow-sm dark:shadow-none dark:border dark:border-[#2a2f35] text-center">
                   <svg
-                    className="mx-auto h-12 w-12 text-gray-400"
+                    className="mx-auto h-12 w-12 text-gray-400 dark:text-[#6b7280]"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -209,7 +217,7 @@ export default function TherapistDashboard() {
                       d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
                     />
                   </svg>
-                  <p className="mt-2 text-gray-500">
+                  <p className="mt-2 text-gray-500 dark:text-[#9ca3af]">
                     {searchQuery ? 'No clients match your search' : 'No clients yet'}
                   </p>
                 </div>
@@ -218,10 +226,14 @@ export default function TherapistDashboard() {
                   <div
                     key={client.clientId}
                     onClick={() => router.push(`/therapist/clients/${client.clientId}`)}
-                    className="p-4 bg-white rounded-lg shadow-sm hover:shadow-md cursor-pointer transition-shadow border border-gray-100"
+                    className="p-4 bg-white dark:bg-[#161a1d] rounded-lg shadow-sm dark:shadow-none hover:shadow-md dark:hover:shadow-none cursor-pointer transition-shadow border border-gray-100 dark:border-[#2a2f35] dark:hover:border-[#3d4449]"
                   >
-                    <div className="font-semibold text-gray-900">{client.clientName}</div>
-                    <div className="text-sm text-gray-600">{client.clientEmail}</div>
+                    <div className="font-semibold text-gray-900 dark:text-[#f5f3ef]">
+                      {client.clientName}
+                    </div>
+                    <div className="text-sm text-gray-600 dark:text-[#9ca3af]">
+                      {client.clientEmail}
+                    </div>
                   </div>
                 ))
               )}
@@ -230,12 +242,14 @@ export default function TherapistDashboard() {
 
           {/* Recent Sessions */}
           <div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Recent Sessions</h2>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-[#f5f3ef] mb-4">
+              Recent Sessions
+            </h2>
             <div className="space-y-3">
               {!dashboardData?.recentSessions.length ? (
-                <div className="p-8 bg-white rounded-lg shadow-sm text-center">
+                <div className="p-8 bg-white dark:bg-[#161a1d] rounded-lg shadow-sm dark:shadow-none dark:border dark:border-[#2a2f35] text-center">
                   <svg
-                    className="mx-auto h-12 w-12 text-gray-400"
+                    className="mx-auto h-12 w-12 text-gray-400 dark:text-[#6b7280]"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -247,10 +261,10 @@ export default function TherapistDashboard() {
                       d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                     />
                   </svg>
-                  <p className="mt-2 text-gray-500">No sessions yet</p>
+                  <p className="mt-2 text-gray-500 dark:text-[#9ca3af]">No sessions yet</p>
                   <button
                     onClick={() => setShowNewSessionModal(true)}
-                    className="mt-3 text-sm text-blue-600 hover:text-blue-800 font-medium"
+                    className="mt-3 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium"
                   >
                     Create your first session
                   </button>
@@ -260,12 +274,14 @@ export default function TherapistDashboard() {
                   <div
                     key={session.id}
                     onClick={() => router.push(`/therapist/sessions/${session.id}`)}
-                    className="p-4 bg-white rounded-lg shadow-sm hover:shadow-md cursor-pointer transition-shadow border border-gray-100"
+                    className="p-4 bg-white dark:bg-[#161a1d] rounded-lg shadow-sm dark:shadow-none hover:shadow-md dark:hover:shadow-none cursor-pointer transition-shadow border border-gray-100 dark:border-[#2a2f35] dark:hover:border-[#3d4449]"
                   >
                     <div className="flex justify-between items-start">
                       <div>
-                        <div className="font-semibold text-gray-900">{session.clientName}</div>
-                        <div className="text-sm text-gray-600">
+                        <div className="font-semibold text-gray-900 dark:text-[#f5f3ef]">
+                          {session.clientName}
+                        </div>
+                        <div className="text-sm text-gray-600 dark:text-[#9ca3af]">
                           {new Date(session.date).toLocaleDateString('en-US', {
                             year: 'numeric',
                             month: 'short',
@@ -282,7 +298,7 @@ export default function TherapistDashboard() {
                           </span>
                         )}
                         {session.hasPlan && (
-                          <span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
+                          <span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
                             Plan Created
                           </span>
                         )}
@@ -301,16 +317,18 @@ export default function TherapistDashboard() {
         <div className="fixed inset-0 z-50 overflow-y-auto">
           <div className="flex min-h-screen items-center justify-center p-4">
             <div
-              className="fixed inset-0 bg-black bg-opacity-25"
+              className="fixed inset-0 bg-black bg-opacity-25 dark:bg-opacity-50"
               onClick={() => setShowNewSessionModal(false)}
             />
-            <div className="relative bg-white rounded-lg shadow-xl max-w-md w-full p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Create New Session</h3>
+            <div className="relative bg-white dark:bg-[#161a1d] rounded-lg shadow-xl dark:shadow-none dark:border dark:border-[#2a2f35] max-w-md w-full p-6">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-[#f5f3ef] mb-4">
+                Create New Session
+              </h3>
               <form onSubmit={handleCreateSession}>
                 <div className="mb-4">
                   <label
                     htmlFor="clientId"
-                    className="block text-sm font-medium text-gray-700 mb-1"
+                    className="block text-sm font-medium text-gray-700 dark:text-[#d1d5db] mb-1"
                   >
                     Client ID
                   </label>
@@ -319,11 +337,11 @@ export default function TherapistDashboard() {
                     id="clientId"
                     value={newClientId}
                     onChange={(e) => setNewClientId(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-[#3d4449] dark:bg-[#1a1d21] dark:text-[#f5f3ef] dark:placeholder-[#6b7280] rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                     placeholder="Enter client ID"
                     required
                   />
-                  <p className="mt-1 text-xs text-gray-500">
+                  <p className="mt-1 text-xs text-gray-500 dark:text-[#9ca3af]">
                     Enter the unique identifier for the client.
                   </p>
                 </div>
@@ -331,14 +349,14 @@ export default function TherapistDashboard() {
                   <button
                     type="button"
                     onClick={() => setShowNewSessionModal(false)}
-                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+                    className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-[#d1d5db] bg-white dark:bg-[#161a1d] border border-gray-300 dark:border-[#3d4449] rounded-md hover:bg-gray-50 dark:hover:bg-[#1a1d21]"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={creating}
-                    className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:bg-gray-400 flex items-center gap-2"
+                    className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-400 disabled:bg-gray-400 dark:disabled:bg-gray-600 flex items-center gap-2"
                   >
                     {creating && (
                       <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">

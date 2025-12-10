@@ -11,7 +11,7 @@ interface EmptyStateProps {
 
 const DefaultIcon = () => (
   <svg
-    className="h-16 w-16 text-gray-400"
+    className="h-16 w-16 text-gray-400 dark:text-[#6b7280]"
     fill="none"
     viewBox="0 0 24 24"
     stroke="currentColor"
@@ -30,8 +30,8 @@ export default function EmptyState({ icon, title, description, action }: EmptySt
   return (
     <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
       <div className="mb-4">{icon || <DefaultIcon />}</div>
-      <h3 className="text-lg font-semibold text-gray-900 mb-2">{title}</h3>
-      <p className="text-gray-600 mb-6 max-w-sm">{description}</p>
+      <h3 className="text-lg font-semibold text-gray-900 dark:text-[#f5f3ef] mb-2">{title}</h3>
+      <p className="text-gray-600 dark:text-[#9ca3af] mb-6 max-w-sm">{description}</p>
       {action && <div>{action}</div>}
     </div>
   );
@@ -44,7 +44,7 @@ export function NoClientsEmpty({ onAddClient }: { onAddClient?: () => void }) {
     <EmptyState
       icon={
         <svg
-          className="h-16 w-16 text-gray-400"
+          className="h-16 w-16 text-gray-400 dark:text-[#6b7280]"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -63,7 +63,7 @@ export function NoClientsEmpty({ onAddClient }: { onAddClient?: () => void }) {
         onAddClient && (
           <button
             onClick={onAddClient}
-            className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-400 transition-colors"
           >
             Add Client
           </button>
@@ -78,7 +78,7 @@ export function NoSessionsEmpty({ onCreateSession }: { onCreateSession?: () => v
     <EmptyState
       icon={
         <svg
-          className="h-16 w-16 text-gray-400"
+          className="h-16 w-16 text-gray-400 dark:text-[#6b7280]"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -97,7 +97,7 @@ export function NoSessionsEmpty({ onCreateSession }: { onCreateSession?: () => v
         onCreateSession && (
           <button
             onClick={onCreateSession}
-            className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-400 transition-colors"
           >
             Create Session
           </button>
@@ -112,7 +112,7 @@ export function NoPlansEmpty() {
     <EmptyState
       icon={
         <svg
-          className="h-16 w-16 text-gray-400"
+          className="h-16 w-16 text-gray-400 dark:text-[#6b7280]"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -136,7 +136,7 @@ export function NoPlanHistoryEmpty() {
     <EmptyState
       icon={
         <svg
-          className="h-16 w-16 text-gray-400"
+          className="h-16 w-16 text-gray-400 dark:text-[#6b7280]"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -160,7 +160,7 @@ export function SearchResultsEmpty({ query }: { query: string }) {
     <EmptyState
       icon={
         <svg
-          className="h-16 w-16 text-gray-400"
+          className="h-16 w-16 text-gray-400 dark:text-[#6b7280]"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"

@@ -18,9 +18,9 @@ const badgeVariants = cva(
         // Default - Subtle background
         default: ['bg-[#e8e6e1] dark:bg-[#2a2f35]', 'text-[#3d4449] dark:text-[#9ca3af]'],
         // Primary - Terracotta theme
-        primary: ['bg-[#c4907a]/10', 'text-[#a67462]'],
+        primary: ['bg-[#c4907a]/10 dark:bg-[#c4907a]/20', 'text-[#a67462] dark:text-[#d4a08a]'],
         // Sage - Nature theme
-        sage: ['bg-[#a8b5a0]/10', 'text-[#5a6b52]'],
+        sage: ['bg-[#a8b5a0]/10 dark:bg-[#a8b5a0]/20', 'text-[#5a6b52] dark:text-[#b8c5b0]'],
         // Success - Positive states
         success: ['bg-green-100 dark:bg-green-900/30', 'text-green-700 dark:text-green-400'],
         // Warning - Caution states
@@ -36,9 +36,9 @@ const badgeVariants = cva(
           'text-[#3d4449] dark:text-[#9ca3af]',
         ],
         // Gold - Premium/highlighted
-        gold: ['bg-[#c9a962]/10', 'text-[#a08742]'],
+        gold: ['bg-[#c9a962]/10 dark:bg-[#c9a962]/20', 'text-[#a08742] dark:text-[#d9b972]'],
         // Dusk - Muted accent
-        dusk: ['bg-[#9ca8c1]/10', 'text-[#6b7a91]'],
+        dusk: ['bg-[#9ca8c1]/10 dark:bg-[#9ca8c1]/20', 'text-[#6b7a91] dark:text-[#acb8d1]'],
       },
       size: {
         sm: 'h-5 px-2 text-xs rounded-md gap-1',

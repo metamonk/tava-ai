@@ -33,10 +33,7 @@ function getRiskDetails(riskLevel) {
                 'Review transcript for context and clinical significance',
             ];
         case 'low':
-            return [
-                'Minor risk indicators present',
-                'Standard clinical attention recommended',
-            ];
+            return ['Minor risk indicators present', 'Standard clinical attention recommended'];
         default:
             return [];
     }

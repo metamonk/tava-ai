@@ -217,7 +217,9 @@ const AvatarWithName = React.forwardRef<HTMLDivElement, AvatarWithNameProps>(
         <Avatar size={size} name={displayName} {...avatarProps} />
         <div className={layout === 'vertical' ? '' : 'min-w-0'}>
           <p className="font-semibold text-[#1a1d21] dark:text-[#f5f3ef] truncate">{displayName}</p>
-          {description && <p className="text-sm text-[#6b7280] truncate">{description}</p>}
+          {description && (
+            <p className="text-sm text-[#6b7280] dark:text-[#9ca3af] truncate">{description}</p>
+          )}
         </div>
       </div>
     );

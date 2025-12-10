@@ -100,3 +100,6 @@ export {
   SkeletonClientCard,
   LoadingButton,
 } from './LoadingStates';
+
+// Theme components
+export { ThemeToggle, type ThemeToggleProps } from './ThemeToggle';

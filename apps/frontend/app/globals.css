@@ -1,5 +1,8 @@
 @import 'tailwindcss';
 
+/* Configure Tailwind v4 dark mode to use class strategy */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* ═══════════════════════════════════════════════════════════════════════════
    TAVA AI - Design System
    Aesthetic: Serene Luxury - Warm, trustworthy, calming for mental health
@@ -60,15 +63,16 @@
   --font-serif: var(--font-display), Georgia, serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0f1114;
-    --foreground: #f5f3ef;
-    --muted: #9ca3af;
-    --tava-cream: #0f1114;
-    --tava-warm-white: #161a1d;
-    --tava-mist: #2a2f35;
-  }
+/* Dark mode CSS variables are applied via .dark class (managed by next-themes) */
+
+/* Class-based dark mode for next-themes */
+.dark {
+  --background: #0f1114;
+  --foreground: #f5f3ef;
+  --muted: #9ca3af;
+  --tava-cream: #0f1114;
+  --tava-warm-white: #161a1d;
+  --tava-mist: #2a2f35;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -280,11 +284,10 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
-@media (prefers-color-scheme: dark) {
-  .glass {
-    background: rgba(22, 26, 29, 0.7);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-  }
+/* Dark mode glass styling - applied via .dark class only */
+.dark .glass {
+  background: rgba(22, 26, 29, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .grain {

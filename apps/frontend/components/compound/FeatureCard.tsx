@@ -93,7 +93,7 @@ const FeatureCard = React.forwardRef<HTMLDivElement, FeatureCardProps>(
         <h3 className="relative font-display text-xl sm:text-2xl font-semibold text-[#1a1d21] dark:text-[#f5f3ef] mb-3">
           {title}
         </h3>
-        <p className="relative text-[#6b7280] leading-relaxed">{description}</p>
+        <p className="relative text-[#6b7280] dark:text-[#9ca3af] leading-relaxed">{description}</p>
 
         {/* Optional action */}
         {action && <div className="relative mt-6">{action}</div>}
@@ -129,7 +129,9 @@ const FeatureCardCompact = React.forwardRef<HTMLDivElement, FeatureCardCompactPr
           {/* Content */}
           <div>
             <h4 className="font-semibold text-[#1a1d21] dark:text-[#f5f3ef] mb-1">{title}</h4>
-            <p className="text-sm text-[#6b7280] leading-relaxed">{description}</p>
+            <p className="text-sm text-[#6b7280] dark:text-[#9ca3af] leading-relaxed">
+              {description}
+            </p>
           </div>
         </div>
       </Card>
@@ -192,7 +194,7 @@ const FeatureCardHorizontal = React.forwardRef<HTMLDivElement, FeatureCardHorizo
             <h3 className="font-display text-2xl font-semibold text-[#1a1d21] dark:text-[#f5f3ef] mb-2">
               {title}
             </h3>
-            <p className="text-[#6b7280] leading-relaxed mb-4">{description}</p>
+            <p className="text-[#6b7280] dark:text-[#9ca3af] leading-relaxed mb-4">{description}</p>
             {action}
           </div>
         </div>

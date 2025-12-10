@@ -66,7 +66,9 @@ const CTASection = React.forwardRef<HTMLElement, CTASectionProps>(
               {title}
             </h2>
             {description && (
-              <p className="text-lg text-[#6b7280] mb-10 max-w-xl mx-auto">{description}</p>
+              <p className="text-lg text-[#6b7280] dark:text-[#9ca3af] mb-10 max-w-xl mx-auto">
+                {description}
+              </p>
             )}
             <ButtonGroup responsive className="justify-center">
               {primaryAction && (
