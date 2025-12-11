@@ -70,15 +70,10 @@ export default function Home() {
               >
                 How It Works
               </Link>
-              <Link
-                href="#testimonials"
-                className="text-sm font-medium text-[#6b7280] hover:text-[#1a1d21] dark:hover:text-[#f5f3ef] transition-colors"
-              >
-                Testimonials
-              </Link>
             </div>
 
             <div className="flex items-center gap-3">
+              <ThemeToggle variant="ghost" size="sm" />
               <Link
                 href="/login"
                 className="px-5 py-2.5 text-sm font-medium text-[#3d4449] hover:text-[#1a1d21] dark:text-[#9ca3af] dark:hover:text-[#f5f3ef] transition-colors"
@@ -103,10 +98,8 @@ export default function Home() {
           <div className="animate-reveal-up inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#a8b5a0]/10 border border-[#a8b5a0]/20 mb-8">
             <span className="w-2 h-2 rounded-full bg-[#a8b5a0] animate-pulse" />
             <span className="text-sm font-medium text-[#5a6b52]">
-              Trusted by 500+ mental health professionals
+              Trusted by 1,000+ mental health professionals
             </span>
-
-            <ThemeToggle />
           </div>
 
           {/* Main Headline */}
@@ -140,24 +133,6 @@ export default function Home() {
           {/* CTA Buttons */}
           <div className="animate-reveal-up delay-300 flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
-              href="/signup"
-              className="group relative px-8 py-4 text-base font-semibold text-white rounded-full overflow-hidden hover-glow"
-            >
-              <div className="absolute inset-0 bg-linear-to-r from-[#c4907a] to-[#a67462] animate-gradient-flow" />
-              <span className="relative z-10 flex items-center gap-2">
-                Start Free Trial
-                <svg
-                  className="w-4 h-4 group-hover:translate-x-1 transition-transform"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                </svg>
-              </span>
-            </Link>
-            <Link
               href="#how-it-works"
               className="group px-8 py-4 text-base font-semibold text-[#3d4449] dark:text-[#9ca3af] rounded-full border border-[#e8e6e1] dark:border-[#2a2f35] hover:border-[#c4907a]/30 hover:bg-[#c4907a]/5 transition-all"
             >
@@ -188,19 +163,17 @@ export default function Home() {
           {/* Trust Indicators */}
           <div className="animate-reveal-up delay-400 mt-16 pt-12 border-t border-[#e8e6e1] dark:border-[#2a2f35]">
             <p className="text-xs font-medium uppercase tracking-wider text-[#6b7280] mb-6">
-              Trusted by leading practices
+              Trusted by leading organizations
             </p>
             <div className="flex flex-wrap items-center justify-center gap-x-12 gap-y-6 opacity-40">
-              {['Stanford Health', 'Mayo Clinic', 'Johns Hopkins', 'Cleveland Clinic'].map(
-                (name) => (
-                  <span
-                    key={name}
-                    className="font-display text-xl font-semibold text-[#3d4449] dark:text-[#9ca3af]"
-                  >
-                    {name}
-                  </span>
-                )
-              )}
+              {['Aetna', 'United Healthcare', 'Cigna', 'BlueCross BlueShield'].map((name) => (
+                <span
+                  key={name}
+                  className="font-display text-xl font-semibold text-[#3d4449] dark:text-[#9ca3af]"
+                >
+                  {name}
+                </span>
+              ))}
             </div>
           </div>
         </div>
@@ -561,78 +534,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Testimonials Section */}
-      <section id="testimonials" className="relative py-32 px-6">
-        <div className="max-w-7xl mx-auto">
-          {/* Section Header */}
-          <div className="text-center mb-20">
-            <span className="text-sm font-semibold uppercase tracking-wider text-[#c4907a]">
-              Testimonials
-            </span>
-            <h2 className="font-display text-4xl sm:text-5xl md:text-6xl font-semibold tracking-tight text-[#1a1d21] dark:text-[#f5f3ef] mt-4 mb-6">
-              Loved by therapists everywhere
-            </h2>
-          </div>
-
-          {/* Testimonial Cards */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[
-              {
-                quote:
-                  'Tava has transformed how I document sessions. What used to take 30 minutes now takes 5, and the quality is better than what I wrote myself.',
-                name: 'Dr. Sarah Chen',
-                role: 'Clinical Psychologist',
-                image: 'SC',
-              },
-              {
-                quote:
-                  'My clients love receiving their session summaries. It helps them remember our conversations and stay motivated between sessions.',
-                name: 'Michael Torres',
-                role: 'Licensed Therapist',
-                image: 'MT',
-              },
-              {
-                quote:
-                  'The risk detection feature has been invaluable. It caught warning signs I might have missed during a particularly complex session.',
-                name: 'Dr. Emily Watson',
-                role: 'Psychiatrist',
-                image: 'EW',
-              },
-            ].map((testimonial) => (
-              <div
-                key={testimonial.name}
-                className="relative p-8 rounded-3xl bg-white dark:bg-[#161a1d] border border-[#e8e6e1] dark:border-[#2a2f35] hover-lift"
-              >
-                {/* Quote mark */}
-                <svg
-                  className="w-10 h-10 text-[#c4907a]/20 mb-6"
-                  fill="currentColor"
-                  viewBox="0 0 32 32"
-                >
-                  <path d="M10 8c-3.3 0-6 2.7-6 6v10h10V14H8c0-1.1.9-2 2-2V8zm14 0c-3.3 0-6 2.7-6 6v10h10V14h-6c0-1.1.9-2 2-2V8z" />
-                </svg>
-
-                <p className="text-[#3d4449] dark:text-[#9ca3af] text-lg leading-relaxed mb-8">
-                  {testimonial.quote}
-                </p>
-
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#c4907a] to-[#a8b5a0] flex items-center justify-center text-white font-semibold">
-                    {testimonial.image}
-                  </div>
-                  <div>
-                    <p className="font-semibold text-[#1a1d21] dark:text-[#f5f3ef]">
-                      {testimonial.name}
-                    </p>
-                    <p className="text-sm text-[#6b7280]">{testimonial.role}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* CTA Section */}
       <section className="relative py-32 px-6">
         <div className="max-w-4xl mx-auto">
@@ -664,150 +565,56 @@ export default function Home() {
                 Join hundreds of mental health professionals who are saving time and delivering
                 better care with Tava.
               </p>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <Link
-                  href="/signup"
-                  className="group px-8 py-4 text-base font-semibold text-[#c4907a] dark:text-[#1a1d21] bg-white rounded-full hover:bg-[#f5f3ef] transition-colors"
+              <Link
+                href="/login"
+                className="group inline-flex items-center gap-2 px-8 py-4 text-base font-semibold bg-white text-[#1a1d21] rounded-full hover:bg-[#f5f3ef] transition-colors"
+              >
+                Sign in to existing account
+                <svg
+                  className="w-4 h-4 group-hover:translate-x-1 transition-transform"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
                 >
-                  <span className="flex items-center gap-2">
-                    Start Free Trial
-                    <svg
-                      className="w-4 h-4 group-hover:translate-x-1 transition-transform"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth={2}
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M17 8l4 4m0 0l-4 4m4-4H3"
-                      />
-                    </svg>
-                  </span>
-                </Link>
-                <Link
-                  href="/login"
-                  className="px-8 py-4 text-base font-semibold text-white/80 hover:text-white transition-colors"
-                >
-                  Sign in to existing account
-                </Link>
-              </div>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
+              </Link>
             </div>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-[#e8e6e1] dark:border-[#2a2f35] py-16 px-6">
+      <footer className="border-t border-[#e8e6e1] dark:border-[#2a2f35] py-12 px-6">
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
-            <div className="col-span-2 md:col-span-1">
-              <Link href="/" className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#c4907a] to-[#a8b5a0] flex items-center justify-center">
-                  <svg
-                    className="w-5 h-5 text-white"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                    />
-                  </svg>
-                </div>
-                <span className="font-display text-2xl font-semibold tracking-tight text-[#1a1d21] dark:text-[#f5f3ef]">
-                  Tava
-                </span>
-              </Link>
-              <p className="text-sm text-[#6b7280] leading-relaxed">
-                AI-powered treatment planning for mental health professionals.
-              </p>
-            </div>
-
-            <div>
-              <h4 className="font-semibold text-[#1a1d21] dark:text-[#f5f3ef] mb-4">Product</h4>
-              <ul className="space-y-3 text-sm text-[#6b7280]">
-                <li>
-                  <Link href="#features" className="hover:text-[#c4907a] transition-colors">
-                    Features
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="hover:text-[#c4907a] transition-colors">
-                    Pricing
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="hover:text-[#c4907a] transition-colors">
-                    Security
-                  </Link>
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="font-semibold text-[#1a1d21] dark:text-[#f5f3ef] mb-4">Company</h4>
-              <ul className="space-y-3 text-sm text-[#6b7280]">
-                <li>
-                  <Link href="#" className="hover:text-[#c4907a] transition-colors">
-                    About
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="hover:text-[#c4907a] transition-colors">
-                    Blog
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="hover:text-[#c4907a] transition-colors">
-                    Careers
-                  </Link>
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="font-semibold text-[#1a1d21] dark:text-[#f5f3ef] mb-4">Legal</h4>
-              <ul className="space-y-3 text-sm text-[#6b7280]">
-                <li>
-                  <Link href="#" className="hover:text-[#c4907a] transition-colors">
-                    Privacy
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="hover:text-[#c4907a] transition-colors">
-                    Terms
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="hover:text-[#c4907a] transition-colors">
-                    HIPAA
-                  </Link>
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          <div className="pt-8 border-t border-[#e8e6e1] dark:border-[#2a2f35] flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex flex-col items-center text-center">
+            <Link href="/" className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#c4907a] to-[#a8b5a0] flex items-center justify-center">
+                <svg
+                  className="w-5 h-5 text-white"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                  />
+                </svg>
+              </div>
+              <span className="font-display text-2xl font-semibold tracking-tight text-[#1a1d21] dark:text-[#f5f3ef]">
+                Tava
+              </span>
+            </Link>
+            <p className="text-sm text-[#6b7280] leading-relaxed max-w-md mb-6">
+              AI-powered treatment planning for mental health professionals.
+            </p>
             <p className="text-sm text-[#6b7280]">
               &copy; {new Date().getFullYear()} Tava AI. All rights reserved.
             </p>
-            <div className="flex items-center gap-6">
-              <Link href="#" className="text-[#6b7280] hover:text-[#c4907a] transition-colors">
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z" />
-                </svg>
-              </Link>
-              <Link href="#" className="text-[#6b7280] hover:text-[#c4907a] transition-colors">
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
-                </svg>
-              </Link>
-            </div>
           </div>
         </div>
       </footer>
