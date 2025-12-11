@@ -4,7 +4,7 @@ import { eq, and, desc } from 'drizzle-orm';
 import { db } from '../db/index.js';
 import { therapySessions } from '../db/schema.js';
 import { requireAuth, requireRole } from '../middleware/auth.js';
-import { upload, uploadMemory } from '../config/multer.js';
+import { upload } from '../config/multer.js';
 import { transcribeAudio } from '../services/aiService.js';
 import { evaluateSessionRisk } from '../services/riskService.js';
 import fs from 'fs/promises';
@@ -195,16 +195,17 @@ router.post(
   }
 );
 
-// POST /api/sessions/:id/audio - Upload audio file
+// POST /api/sessions/:id/audio - Upload audio file and transcribe
 router.post(
   '/:id/audio',
   requireAuth,
   requireRole('therapist'),
   upload.single('audio'),
   async (req: Request, res: Response): Promise<void> => {
+    const file = req.file;
+
     try {
       const { id } = req.params;
-      const file = req.file;
 
       if (!file) {
         res.status(400).json({ error: 'Audio file is required' });
@@ -228,78 +229,80 @@ router.post(
         await fs.unlink(existingSession.audioFilePath).catch(console.error);
       }
 
+      // Read the saved file for transcription
+      let audioBuffer: Buffer;
+      try {
+        audioBuffer = await fs.readFile(file.path);
+      } catch (readError) {
+        console.error('Failed to read uploaded audio file:', readError);
+        await fs.unlink(file.path).catch(console.error);
+        res.status(500).json({ error: 'Failed to process uploaded file. Please try again.' });
+        return;
+      }
+
+      // Transcribe the audio
+      let transcript: string;
+      try {
+        transcript = await transcribeAudio(audioBuffer, file.mimetype);
+      } catch (transcriptionError) {
+        console.error('Transcription failed:', transcriptionError);
+        // Clean up the uploaded file since transcription failed
+        await fs.unlink(file.path).catch(console.error);
+
+        // Provide specific error message based on error type
+        const errorMessage =
+          transcriptionError instanceof Error ? transcriptionError.message : 'Unknown error';
+
+        if (errorMessage.includes('Audio transcription failed')) {
+          res.status(422).json({
+            error:
+              'Could not transcribe the audio file. Please ensure the file contains clear speech and try again.',
+            details: 'The AI service was unable to process the audio content.',
+          });
+        } else {
+          res.status(500).json({
+            error:
+              'Transcription service temporarily unavailable. Please try again in a few moments.',
+            details: errorMessage,
+          });
+        }
+        return;
+      }
+
+      // Update session with both audio path and transcript
       await db
         .update(therapySessions)
         .set({
           audioFilePath: file.path,
+          transcript,
           updatedAt: new Date(),
         })
         .where(eq(therapySessions.id, id));
 
-      res.json({
-        message: 'Audio file uploaded successfully',
-        filePath: file.path,
-        fileName: file.filename,
-        size: file.size,
-      });
-    } catch (error) {
-      console.error('Error uploading audio:', error);
-
-      if (req.file) {
-        await fs.unlink(req.file.path).catch(console.error);
-      }
-
-      res.status(500).json({ error: 'Failed to upload audio file' });
-    }
-  }
-);
-
-// POST /api/sessions/:id/transcribe - Transcribe audio file using Whisper
-router.post(
-  '/:id/transcribe',
-  requireAuth,
-  requireRole('therapist'),
-  uploadMemory.single('audio'),
-  async (req: Request, res: Response): Promise<void> => {
-    try {
-      const { id } = req.params;
-
-      if (!req.file) {
-        res.status(400).json({ error: 'No audio file provided' });
-        return;
-      }
-
-      // Get session and verify ownership
-      const [session] = await db.select().from(therapySessions).where(eq(therapySessions.id, id));
-
-      if (!session) {
-        res.status(404).json({ error: 'Session not found' });
-        return;
-      }
-
-      if (session.therapistId !== req.user!.id) {
-        res.status(403).json({ error: 'Forbidden' });
-        return;
-      }
-
-      // Transcribe audio using Whisper
-      const transcript = await transcribeAudio(req.file.buffer, req.file.mimetype);
-
-      // Update session with transcript
-      await db
-        .update(therapySessions)
-        .set({ transcript, updatedAt: new Date() })
-        .where(eq(therapySessions.id, id));
-
-      // Evaluate risk level after transcription (non-blocking, log errors)
+      // Evaluate risk level after transcription (non-blocking)
       evaluateSessionRisk(id).catch((error) => {
         console.error('Risk evaluation failed for session', id, error);
       });
 
-      res.json({ transcript });
+      res.json({
+        message: 'Audio uploaded and transcribed successfully',
+        filePath: file.path,
+        fileName: file.filename,
+        size: file.size,
+        transcript,
+      });
     } catch (error) {
-      console.error('Transcription error:', error);
-      res.status(500).json({ error: 'Transcription failed' });
+      console.error('Error in audio upload/transcription:', error);
+
+      // Clean up uploaded file on any unexpected error
+      if (file) {
+        await fs.unlink(file.path).catch(console.error);
+      }
+
+      res.status(500).json({
+        error: 'An unexpected error occurred. Please try again.',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      });
     }
   }
 );

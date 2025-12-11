@@ -2,11 +2,12 @@
 
 import { useState } from 'react';
 
-interface ErrorBannerProps {
+export interface ErrorBannerProps {
   message: string;
   details?: string;
   onDismiss?: () => void;
   variant?: 'error' | 'warning' | 'info';
+  className?: string;
 }
 
 export default function ErrorBanner({
@@ -14,6 +15,7 @@ export default function ErrorBanner({
   details,
   onDismiss,
   variant = 'error',
+  className = '',
 }: ErrorBannerProps) {
   const [isVisible, setIsVisible] = useState(true);
 
@@ -105,7 +107,7 @@ export default function ErrorBanner({
 
   return (
     <div
-      className={`border rounded-lg p-4 mb-4 ${styles.container}`}
+      className={`border rounded-lg p-4 mb-4 ${styles.container} ${className}`}
       role="alert"
       aria-live="polite"
     >

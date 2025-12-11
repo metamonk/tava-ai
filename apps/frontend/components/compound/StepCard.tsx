@@ -43,7 +43,7 @@ const StepCard = React.forwardRef<HTMLDivElement, StepCardProps>(
       <div ref={ref} className={cn('relative', className)} {...props}>
         {/* Connector line (hidden on last step and mobile) */}
         {!isLast && (
-          <div className="hidden lg:block absolute top-1/4 -right-2 w-4 h-px bg-gradient-to-r from-[#3d4449] to-transparent" />
+          <div className="hidden lg:block absolute top-1/4 -right-2 w-4 h-px bg-linear-to-r from-[#3d4449] to-transparent" />
         )}
 
         <div className={cn(align === 'center' ? 'text-center' : 'text-left', 'lg:text-left')}>
@@ -51,7 +51,7 @@ const StepCard = React.forwardRef<HTMLDivElement, StepCardProps>(
           {visual && <div className="mb-8">{visual}</div>}
 
           {/* Step number */}
-          <span className="inline-block font-display text-4xl sm:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#c4907a] to-[#a8b5a0] mb-4">
+          <span className="inline-block font-display text-4xl sm:text-5xl font-bold text-transparent bg-clip-text bg-linear-to-r from-[#c4907a] to-[#a8b5a0] mb-4">
             {step}
           </span>
 

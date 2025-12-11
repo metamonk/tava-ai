@@ -209,20 +209,30 @@ router.put(
 
       // Use a transaction to atomically deactivate old versions and create new one
       const result = await db.transaction(async (tx) => {
+        // Get the highest version number for this session
+        const existingPlans = await tx
+          .select({ versionNumber: plans.versionNumber })
+          .from(plans)
+          .where(eq(plans.sessionId, originalPlan.sessionId))
+          .orderBy(desc(plans.versionNumber))
+          .limit(1);
+
+        const maxVersion = existingPlans.length > 0 ? existingPlans[0].versionNumber : 0;
+
         // Deactivate all plans for this session
         await tx
           .update(plans)
           .set({ isActive: false })
           .where(eq(plans.sessionId, originalPlan.sessionId));
 
-        // Create new version
+        // Create new version with next sequential version number
         const [newPlan] = await tx
           .insert(plans)
           .values({
             sessionId: originalPlan.sessionId,
             clientId: originalPlan.clientId,
             therapistId: originalPlan.therapistId,
-            versionNumber: originalPlan.versionNumber + 1,
+            versionNumber: maxVersion + 1,
             therapistPlanText,
             clientPlanText,
             isActive: true,

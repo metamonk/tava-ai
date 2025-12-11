@@ -4,7 +4,48 @@ import { toFile } from 'openai';
 export const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
 });
-// WHISPER TRANSCRIPTION
+// SPEAKER CLASSIFICATION PROMPT
+const SPEAKER_CLASSIFICATION_PROMPT = `You are analyzing a therapy session transcript with two speakers labeled A and B.
+
+Determine which speaker is the THERAPIST based on these indicators:
+- Asks open-ended therapeutic questions ("How did that make you feel?", "Tell me more about...")
+- Uses reflective listening ("So what I'm hearing is...", "It sounds like...")
+- Uses clinical/professional language
+- Guides the conversation structure, sets agenda
+- Summarizes, validates, or assigns homework
+- Maintains professional distance (doesn't share personal problems)
+
+The CLIENT typically:
+- Shares personal experiences and emotions
+- Describes problems, concerns, or symptoms
+- Responds to therapeutic prompts
+- Discusses their own life situations
+
+Analyze the ENTIRE conversation to make your determination. Look at patterns across multiple exchanges, not just individual statements.
+
+Respond with ONLY valid JSON:
+{"therapist": "A" | "B", "confidence": "high" | "medium" | "low", "reasoning": "brief explanation"}`;
+async function classifySpeakers(rawSegments) {
+    // Format transcript for analysis
+    const transcriptForAnalysis = rawSegments
+        .map(seg => `${seg.speaker}: ${seg.text}`)
+        .join('\n');
+    const completion = await openai.chat.completions.create({
+        model: 'gpt-4-turbo-preview',
+        messages: [
+            { role: 'system', content: SPEAKER_CLASSIFICATION_PROMPT },
+            { role: 'user', content: transcriptForAnalysis },
+        ],
+        response_format: { type: 'json_object' },
+        temperature: 0.1, // Low temperature for consistent classification
+        max_tokens: 200,
+    });
+    const content = completion.choices[0].message.content;
+    if (!content)
+        throw new Error('Empty speaker classification response');
+    return JSON.parse(content);
+}
+// WHISPER TRANSCRIPTION WITH DIARIZATION
 export async function transcribeAudio(audioBuffer, mimeType = 'audio/wav') {
     try {
         // Determine file extension from mime type
@@ -23,32 +64,101 @@ export async function transcribeAudio(audioBuffer, mimeType = 'audio/wav') {
         const extension = extensionMap[mimeType] || 'wav';
         // Convert buffer to file-like object for OpenAI SDK
         const file = await toFile(audioBuffer, `audio.${extension}`, { type: mimeType });
+        // Use GPT-4o transcribe with diarization for speaker identification
         const transcription = await openai.audio.transcriptions.create({
             file: file,
-            model: 'whisper-1',
+            model: 'gpt-4o-transcribe-diarize',
             language: 'en',
-            response_format: 'text',
+            response_format: 'diarized_json',
+            chunking_strategy: 'auto',
         });
-        // The response is a string when response_format is 'text'
-        return transcription.trim();
+        // Check if we have segments with speaker info
+        const response = transcription;
+        // If no segments or no speaker info, return plain text (fallback)
+        if (!response.segments || response.segments.length === 0 || !response.segments[0].speaker) {
+            console.warn('Diarization not available, returning plain text');
+            return response.text.trim();
+        }
+        // Extract raw segments with speaker labels
+        const rawSegments = response.segments.map(seg => ({
+            speaker: seg.speaker || 'UNKNOWN',
+            text: seg.text.trim(),
+            start: seg.start,
+            end: seg.end,
+        }));
+        // Classify speakers (therapist vs client)
+        const classification = await classifySpeakers(rawSegments);
+        console.log(`Speaker classification: ${classification.therapist} is therapist (${classification.confidence} confidence)`);
+        // Map generic labels to roles - find all unique speakers and determine client label
+        const therapistLabel = classification.therapist;
+        const uniqueSpeakers = [...new Set(rawSegments.map(s => s.speaker))];
+        const clientLabel = uniqueSpeakers.find(s => s !== therapistLabel) || 'B';
+        // Build diarized transcript structure
+        const diarizedTranscript = {
+            segments: rawSegments.map(seg => ({
+                speaker: seg.speaker === therapistLabel ? 'therapist' : 'client',
+                text: seg.text,
+                start: seg.start,
+                end: seg.end,
+            })),
+            fullText: rawSegments.map(seg => seg.text).join(' '),
+        };
+        // Return as JSON string (stored in transcript field)
+        return JSON.stringify(diarizedTranscript);
     }
     catch (error) {
         console.error('Whisper transcription error:', error);
         throw new Error('Audio transcription failed');
     }
 }
+// Utility to parse transcript (handles both plain text and diarized JSON)
+export function parseTranscript(transcript) {
+    try {
+        const parsed = JSON.parse(transcript);
+        if (parsed.segments && Array.isArray(parsed.segments)) {
+            return parsed;
+        }
+        return null;
+    }
+    catch {
+        // Plain text transcript
+        return null;
+    }
+}
+// Format diarized transcript for AI prompts
+export function formatTranscriptForPrompt(transcript) {
+    const diarized = parseTranscript(transcript);
+    if (!diarized) {
+        // Plain text - return as-is
+        return transcript;
+    }
+    // Format with speaker labels
+    return diarized.segments
+        .map(seg => `[${seg.speaker.toUpperCase()}]: ${seg.text}`)
+        .join('\n\n');
+}
 // GPT-4 THERAPIST PLAN GENERATION
 const THERAPIST_PLAN_PROMPT = `You are a licensed clinical psychologist creating a treatment plan from a therapy session transcript.
 
-Analyze the transcript and extract:
-1. Presenting concerns (main issues discussed)
-2. Clinical impressions (professional assessment)
-3. Short-term goals (achievable within 1-3 sessions)
-4. Long-term goals (achievable within 3-6 months)
+The transcript has speaker labels:
+- [THERAPIST]: Statements made by the therapist
+- [CLIENT]: Statements made by the client
+
+Use these labels to accurately attribute information:
+
+From CLIENT statements, extract:
+1. Presenting concerns (issues they explicitly raised)
+2. Their stated strengths and protective factors
+3. Risks or red flags (self-harm, suicidal ideation, substance use mentions)
+
+From THERAPIST statements, extract:
+4. Clinical impressions (professional observations noted)
 5. Interventions used (CBT, DBT, mindfulness, etc.)
 6. Homework assigned
-7. Strengths and protective factors
-8. Risks or red flags (self-harm, suicidal ideation, etc.)
+
+From the overall session, determine:
+7. Short-term goals (achievable within 1-3 sessions)
+8. Long-term goals (achievable within 3-6 months)
 
 Respond with ONLY valid JSON matching this schema:
 {
@@ -62,6 +172,8 @@ Respond with ONLY valid JSON matching this schema:
   "risks": string[]
 }`;
 export async function generateTherapistPlan(transcript, maxRetries = 3) {
+    // Format transcript with speaker labels if diarized
+    const formattedTranscript = formatTranscriptForPrompt(transcript);
     let lastError = null;
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
         try {
@@ -69,7 +181,7 @@ export async function generateTherapistPlan(transcript, maxRetries = 3) {
                 model: 'gpt-4-turbo-preview',
                 messages: [
                     { role: 'system', content: THERAPIST_PLAN_PROMPT },
-                    { role: 'user', content: `Transcript:\n${transcript}` },
+                    { role: 'user', content: `Transcript:\n${formattedTranscript}` },
                 ],
                 response_format: { type: 'json_object' },
                 temperature: 0.3,

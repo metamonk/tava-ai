@@ -19,6 +19,16 @@ router.get('/therapist', requireAuth, requireRole('therapist'), async (req, res)
             .innerJoin(users, eq(therapySessions.clientId, users.id))
             .where(eq(therapySessions.therapistId, therapistId))
             .orderBy(therapySessions.clientId);
+        // Get all available clients (users with role='client') for session creation
+        const allClients = await db
+            .select({
+            clientId: users.id,
+            clientName: users.name,
+            clientEmail: users.email,
+        })
+            .from(users)
+            .where(eq(users.role, 'client'))
+            .orderBy(users.name);
         // Get recent sessions with client info and plan status
         const recentSessions = await db
             .select({
@@ -37,6 +47,7 @@ router.get('/therapist', requireAuth, requireRole('therapist'), async (req, res)
             .limit(10);
         res.json({
             clients: clientsWithSessions,
+            allClients, // All available clients for session creation
             recentSessions,
         });
     }

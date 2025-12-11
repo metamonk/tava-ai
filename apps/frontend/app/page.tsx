@@ -113,7 +113,7 @@ export default function Home() {
           <h1 className="animate-reveal-up delay-100 font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-semibold tracking-tight text-[#1a1d21] dark:text-[#f5f3ef] leading-[1.05] mb-8 text-balance">
             Transform therapy sessions into{' '}
             <span className="relative inline-block">
-              <span className="relative z-10 bg-gradient-to-r from-[#c4907a] to-[#a8b5a0] bg-clip-text text-transparent">
+              <span className="relative z-10 bg-linear-to-r from-[#c4907a] to-[#a8b5a0] bg-clip-text text-transparent">
                 healing pathways
               </span>
               <svg
@@ -143,7 +143,7 @@ export default function Home() {
               href="/signup"
               className="group relative px-8 py-4 text-base font-semibold text-white rounded-full overflow-hidden hover-glow"
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-[#c4907a] to-[#a67462] animate-gradient-flow" />
+              <div className="absolute inset-0 bg-linear-to-r from-[#c4907a] to-[#a67462] animate-gradient-flow" />
               <span className="relative z-10 flex items-center gap-2">
                 Start Free Trial
                 <svg
@@ -452,7 +452,7 @@ export default function Home() {
                           </div>
                           <div className="h-1.5 bg-[#e8e6e1] dark:bg-[#3d4449] rounded-full overflow-hidden">
                             <div
-                              className="h-full bg-gradient-to-r from-[#c4907a] to-[#a8b5a0] rounded-full transition-all"
+                              className="h-full bg-linear-to-r from-[#c4907a] to-[#a8b5a0] rounded-full transition-all"
                               style={{ width: `${item.progress}%` }}
                             />
                           </div>
@@ -536,7 +536,7 @@ export default function Home() {
               <div key={item.step} className="relative">
                 {/* Connector line */}
                 {index < 2 && (
-                  <div className="hidden lg:block absolute top-1/4 -right-2 w-4 h-px bg-gradient-to-r from-[#e8e6e1] dark:from-[#3d4449] to-transparent" />
+                  <div className="hidden lg:block absolute top-1/4 -right-2 w-4 h-px bg-linear-to-r from-[#e8e6e1] dark:from-[#3d4449] to-transparent" />
                 )}
 
                 <div className="text-center lg:text-left">
@@ -544,7 +544,7 @@ export default function Home() {
                   <div className="mb-8">{item.visual}</div>
 
                   {/* Step number */}
-                  <span className="inline-block font-display text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#c4907a] to-[#a8b5a0] mb-4">
+                  <span className="inline-block font-display text-5xl font-bold text-transparent bg-clip-text bg-linear-to-r from-[#c4907a] to-[#a8b5a0] mb-4">
                     {item.step}
                   </span>
 

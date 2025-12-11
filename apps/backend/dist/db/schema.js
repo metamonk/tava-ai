@@ -1,7 +1,7 @@
 import { pgTable, uuid, varchar, text, timestamp, boolean, integer, index, } from 'drizzle-orm/pg-core';
 // Users table - extended for BetterAuth compatibility
 export const users = pgTable('users', {
-    id: text('id').primaryKey(), // BetterAuth uses text IDs
+    id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()), // BetterAuth uses text IDs
     email: varchar('email', { length: 255 }).notNull().unique(),
     emailVerified: boolean('email_verified').default(false).notNull(),
     name: varchar('name', { length: 255 }).notNull(),
@@ -12,7 +12,7 @@ export const users = pgTable('users', {
 });
 // BetterAuth session table (named authSessions to avoid conflict with therapy sessions)
 export const authSessions = pgTable('auth_sessions', {
-    id: text('id').primaryKey(),
+    id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
     expiresAt: timestamp('expires_at').notNull(),
     token: text('token').notNull().unique(),
     createdAt: timestamp('created_at').defaultNow().notNull(),
@@ -25,7 +25,7 @@ export const authSessions = pgTable('auth_sessions', {
 }, (table) => [index('auth_sessions_user_id_idx').on(table.userId)]);
 // BetterAuth account table for credential/OAuth providers
 export const account = pgTable('account', {
-    id: text('id').primaryKey(),
+    id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
     accountId: text('account_id').notNull(),
     providerId: text('provider_id').notNull(),
     userId: text('user_id')
@@ -43,7 +43,7 @@ export const account = pgTable('account', {
 }, (table) => [index('account_user_id_idx').on(table.userId)]);
 // BetterAuth verification table for email verification tokens
 export const verification = pgTable('verification', {
-    id: text('id').primaryKey(),
+    id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
     identifier: text('identifier').notNull(),
     value: text('value').notNull(),
     expiresAt: timestamp('expires_at').notNull(),

@@ -1,10 +1,7 @@
-import dotenv from 'dotenv';
-dotenv.config();
-
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
-import { toNodeHandler, fromNodeHeaders } from 'better-auth/node';
+import { toNodeHandler } from 'better-auth/node';
 import { sql } from 'drizzle-orm';
 import { db } from './db/index.js';
 import { auth } from './auth/config.js';
@@ -16,24 +13,12 @@ import dashboardRouter from './routes/dashboard.js';
 const app = express();
 const PORT = process.env.PORT || 8080;
 
-// Parse allowed origins from environment (comma-separated)
-const allowedOrigins = (process.env.FRONTEND_URL || 'http://localhost:3000')
-  .split(',')
-  .map((origin) => origin.trim());
-
 // CORS configuration with credentials support for auth cookies
+const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+
 app.use(
   cors({
-    origin: (origin, callback) => {
-      // Allow requests with no origin (mobile apps, Postman, etc.)
-      if (!origin) return callback(null, true);
-
-      if (allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS'));
-      }
-    },
+    origin: frontendUrl,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     credentials: true,
   })

@@ -50,7 +50,7 @@ const buttonVariants = cva(
         // Sage - Nature-inspired alternative primary
         sage: [
           'text-white',
-          'bg-gradient-to-r from-[#a8b5a0] to-[#7d8d74]',
+          'bg-linear-to-r from-[#a8b5a0] to-[#7d8d74]',
           'hover:from-[#b8c5b0] hover:to-[#8d9d84]',
           'focus-visible:ring-[#a8b5a0]',
           'shadow-md hover:shadow-lg',
@@ -113,6 +113,8 @@ export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {
   /** Show loading spinner and disable interactions */
   isLoading?: boolean;
+  /** Text to show when loading (replaces children) */
+  loadingText?: string;
   /** Icon to show before button text */
   leftIcon?: React.ReactNode;
   /** Icon to show after button text */
@@ -150,6 +152,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       size,
       rounded,
       isLoading = false,
+      loadingText,
       leftIcon,
       rightIcon,
       disabled,
@@ -193,7 +196,9 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         {!isLoading && leftIcon && <span className="shrink-0">{leftIcon}</span>}
 
         {/* Button content */}
-        <span className={cn(isLoading && 'opacity-0')}>{children}</span>
+        <span className={cn(isLoading && !loadingText && 'opacity-0')}>
+          {isLoading && loadingText ? loadingText : children}
+        </span>
 
         {/* Right icon */}
         {!isLoading && rightIcon && (

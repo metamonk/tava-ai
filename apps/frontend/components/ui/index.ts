@@ -103,3 +103,15 @@ export {
 
 // Theme components
 export { ThemeToggle, type ThemeToggleProps } from './ThemeToggle';
+
+// Modal components
+export { Modal, ModalHeader, ModalFooter, type ModalProps } from './modal';
+
+// Tabs components
+export { Tabs, TabsList, TabsTrigger, TabsContent, type TabsProps } from './tabs';
+
+// Toast components
+export { ToastProvider, useToast } from './toast';
+
+// DataTable component
+export { DataTable, type DataTableProps, type Column } from './data-table';

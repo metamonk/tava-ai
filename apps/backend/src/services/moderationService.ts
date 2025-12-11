@@ -38,7 +38,7 @@ export interface ModerationResult {
 export async function moderateContent(text: string): Promise<ModerationResult> {
   try {
     const response = await openai.moderations.create({
-      model: 'text-moderation-latest',
+      model: 'omni-moderation-latest',
       input: text,
     });
 

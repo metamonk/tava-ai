@@ -93,7 +93,7 @@ const HighlightedTitle = ({
   <h1 className={className}>
     {before}{' '}
     <span className="relative inline-block">
-      <span className="relative z-10 bg-gradient-to-r from-[#c4907a] to-[#a8b5a0] bg-clip-text text-transparent">
+      <span className="relative z-10 bg-linear-to-r from-[#c4907a] to-[#a8b5a0] bg-clip-text text-transparent">
         {highlighted}
       </span>
       <svg

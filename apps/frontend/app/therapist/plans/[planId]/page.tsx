@@ -5,6 +5,18 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { DisclaimerBanner } from '@/components/disclaimers';
+import {
+  Button,
+  Card,
+  Badge,
+  Textarea,
+  LoadingSpinner,
+  ErrorBanner,
+  Tabs,
+  TabsList,
+  TabsTrigger,
+} from '@/components/ui';
+import { DashboardLayout, DashboardMain, BackLink } from '@/components/dashboard';
 
 interface TherapistPlan {
   presentingConcerns: string[];
@@ -163,61 +175,20 @@ export default function PlanEditorPage() {
 
   if (authLoading || loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-[#0f1114]">
-        <div className="flex items-center gap-3">
-          <svg
-            className="animate-spin h-8 w-8 text-blue-600 dark:text-blue-400"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <circle
-              className="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              strokeWidth="4"
-            />
-            <path
-              className="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-            />
-          </svg>
-          <span className="text-gray-600 dark:text-[#9ca3af]">Loading plan...</span>
-        </div>
-      </div>
+      <DashboardLayout className="flex items-center justify-center">
+        <LoadingSpinner size="lg" text="Loading plan..." />
+      </DashboardLayout>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-[#0f1114]">
-        <div className="max-w-4xl mx-auto px-4 py-8">
-          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 rounded-lg p-6 text-center">
-            <svg
-              className="mx-auto h-12 w-12 text-red-400"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-              />
-            </svg>
-            <h3 className="mt-4 text-lg font-medium text-red-800 dark:text-red-300">{error}</h3>
-            <Link
-              href="/therapist/dashboard"
-              className="mt-4 inline-block text-sm font-medium text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300"
-            >
-              Back to Dashboard
-            </Link>
-          </div>
-        </div>
-      </div>
+      <DashboardLayout>
+        <DashboardMain>
+          <BackLink href="/therapist/dashboard" label="Back to Dashboard" />
+          <ErrorBanner message={error} />
+        </DashboardMain>
+      </DashboardLayout>
     );
   }
 
@@ -229,7 +200,7 @@ export default function PlanEditorPage() {
   const clientPlan = plan.clientPlan;
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-[#0f1114]">
+    <DashboardLayout>
       {/* Header */}
       <header className="bg-white dark:bg-[#161a1d] shadow-sm dark:shadow-none dark:border-b dark:border-[#2a2f35]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -237,7 +208,7 @@ export default function PlanEditorPage() {
             <div className="flex items-center gap-4">
               <Link
                 href={`/therapist/sessions/${plan.sessionId}`}
-                className="text-gray-500 dark:text-[#9ca3af] hover:text-gray-700 dark:hover:text-[#d1d5db] transition-colors"
+                className="text-[#6b7280] dark:text-[#9ca3af] hover:text-[#3d4449] dark:hover:text-[#d1d5db] transition-colors"
               >
                 <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path
@@ -249,27 +220,22 @@ export default function PlanEditorPage() {
                 </svg>
               </Link>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-[#f5f3ef]">
+                <h1 className="text-2xl font-bold text-[#1a1d21] dark:text-[#f5f3ef]">
                   {isEditing ? 'Edit Treatment Plan' : `Treatment Plan v${plan.versionNumber}`}
                 </h1>
-                <p className="text-sm text-gray-600 dark:text-[#9ca3af]">
+                <p className="text-sm text-[#6b7280] dark:text-[#9ca3af]">
                   Created {new Date(plan.createdAt).toLocaleString()}
                 </p>
               </div>
             </div>
             <div className="flex items-center gap-3">
               {plan.isActive && (
-                <span className="px-3 py-1 text-sm font-medium rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300">
+                <Badge variant="sage" size="md">
                   Active
-                </span>
+                </Badge>
               )}
               {!isEditing && user?.role === 'therapist' && (
-                <button
-                  onClick={() => setIsEditing(true)}
-                  className="px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-md font-medium hover:bg-blue-700 dark:hover:bg-blue-400 transition-colors"
-                >
-                  Edit Plan
-                </button>
+                <Button onClick={() => setIsEditing(true)}>Edit Plan</Button>
               )}
             </div>
           </div>
@@ -284,105 +250,64 @@ export default function PlanEditorPage() {
           {/* Main Content */}
           <div className="lg:col-span-3">
             {/* Tab Navigation */}
-            <div className="flex gap-2 mb-6">
-              <button
-                onClick={() => setViewMode('therapist')}
-                className={`px-4 py-2 rounded-md font-medium transition-colors ${
-                  viewMode === 'therapist'
-                    ? 'bg-blue-600 dark:bg-blue-500 text-white'
-                    : 'bg-gray-100 dark:bg-[#1a1d21] text-gray-700 dark:text-[#d1d5db] hover:bg-gray-200 dark:hover:bg-[#2a2f35]'
-                }`}
-              >
-                Therapist View
-              </button>
-              <button
-                onClick={() => setViewMode('client')}
-                className={`px-4 py-2 rounded-md font-medium transition-colors ${
-                  viewMode === 'client'
-                    ? 'bg-blue-600 dark:bg-blue-500 text-white'
-                    : 'bg-gray-100 dark:bg-[#1a1d21] text-gray-700 dark:text-[#d1d5db] hover:bg-gray-200 dark:hover:bg-[#2a2f35]'
-                }`}
-              >
-                Client View
-              </button>
-            </div>
+            <Tabs
+              value={viewMode}
+              onValueChange={(v) => setViewMode(v as 'therapist' | 'client')}
+              variant="buttons"
+              className="mb-6"
+            >
+              <TabsList>
+                <TabsTrigger value="therapist">Therapist View</TabsTrigger>
+                <TabsTrigger value="client">Client View</TabsTrigger>
+              </TabsList>
+            </Tabs>
 
             {/* Save Error */}
-            {saveError && (
-              <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 rounded-lg p-4 mb-6">
-                <p className="text-sm text-red-700 dark:text-red-300">{saveError}</p>
-              </div>
-            )}
+            {saveError && <ErrorBanner message={saveError} className="mb-6" />}
 
             {isEditing ? (
               /* Edit Mode */
               <div className="space-y-6">
                 {viewMode === 'therapist' ? (
-                  <div className="bg-white dark:bg-[#161a1d] rounded-lg shadow-sm dark:shadow-none dark:border dark:border-[#2a2f35] p-6">
-                    <label className="block mb-2 text-sm font-semibold text-gray-900 dark:text-[#f5f3ef]">
+                  <Card padding="lg">
+                    <label className="block mb-2 text-sm font-semibold text-[#1a1d21] dark:text-[#f5f3ef]">
                       Therapist Plan (Clinical)
                     </label>
-                    <textarea
+                    <Textarea
                       value={therapistPlanText}
                       onChange={(e) => setTherapistPlanText(e.target.value)}
-                      className="w-full h-96 px-4 py-3 border border-gray-300 dark:border-[#3d4449] dark:bg-[#1a1d21] dark:text-[#f5f3ef] dark:placeholder-[#6b7280] rounded-md font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="h-96 font-mono text-sm"
                       placeholder="Enter therapist plan JSON..."
                     />
-                  </div>
+                  </Card>
                 ) : (
-                  <div className="bg-white dark:bg-[#161a1d] rounded-lg shadow-sm dark:shadow-none dark:border dark:border-[#2a2f35] p-6">
-                    <label className="block mb-2 text-sm font-semibold text-gray-900 dark:text-[#f5f3ef]">
+                  <Card padding="lg">
+                    <label className="block mb-2 text-sm font-semibold text-[#1a1d21] dark:text-[#f5f3ef]">
                       Client Plan (Simplified)
                     </label>
-                    <textarea
+                    <Textarea
                       value={clientPlanText}
                       onChange={(e) => setClientPlanText(e.target.value)}
-                      className="w-full h-96 px-4 py-3 border border-gray-300 dark:border-[#3d4449] dark:bg-[#1a1d21] dark:text-[#f5f3ef] dark:placeholder-[#6b7280] rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="h-96 text-sm"
                       placeholder="Enter client plan JSON..."
                     />
-                  </div>
+                  </Card>
                 )}
 
                 <div className="flex gap-3">
-                  <button
+                  <Button
+                    variant="sage"
                     onClick={handleSave}
                     disabled={saving}
-                    className="flex-1 bg-green-600 dark:bg-green-500 text-white py-3 rounded-md font-medium hover:bg-green-700 dark:hover:bg-green-400 disabled:bg-gray-400 dark:disabled:bg-gray-600 disabled:cursor-not-allowed transition-colors"
+                    isLoading={saving}
+                    loadingText="Saving..."
+                    className="flex-1"
                   >
-                    {saving ? (
-                      <span className="flex items-center justify-center">
-                        <svg
-                          className="animate-spin -ml-1 mr-2 h-5 w-5 text-white"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                        >
-                          <circle
-                            className="opacity-25"
-                            cx="12"
-                            cy="12"
-                            r="10"
-                            stroke="currentColor"
-                            strokeWidth="4"
-                          />
-                          <path
-                            className="opacity-75"
-                            fill="currentColor"
-                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                          />
-                        </svg>
-                        Saving...
-                      </span>
-                    ) : (
-                      'Save as New Version'
-                    )}
-                  </button>
-                  <button
-                    onClick={handleCancelEdit}
-                    disabled={saving}
-                    className="px-6 py-3 bg-gray-200 dark:bg-[#2a2f35] text-gray-700 dark:text-[#d1d5db] rounded-md font-medium hover:bg-gray-300 dark:hover:bg-[#3d4449] disabled:opacity-50 transition-colors"
-                  >
+                    Save as New Version
+                  </Button>
+                  <Button variant="secondary" onClick={handleCancelEdit} disabled={saving}>
                     Cancel
-                  </button>
+                  </Button>
                 </div>
               </div>
             ) : (
@@ -393,7 +318,7 @@ export default function PlanEditorPage() {
                     <Section title="Presenting Concerns">
                       <ul className="list-disc list-inside space-y-1">
                         {therapistPlan.presentingConcerns.map((concern, idx) => (
-                          <li key={idx} className="text-gray-700 dark:text-[#d1d5db]">
+                          <li key={idx} className="text-[#3d4449] dark:text-[#d1d5db]">
                             {concern}
                           </li>
                         ))}
@@ -401,7 +326,7 @@ export default function PlanEditorPage() {
                     </Section>
 
                     <Section title="Clinical Impressions">
-                      <p className="text-gray-700 dark:text-[#d1d5db] whitespace-pre-wrap">
+                      <p className="text-[#3d4449] dark:text-[#d1d5db] whitespace-pre-wrap">
                         {therapistPlan.clinicalImpressions}
                       </p>
                     </Section>
@@ -410,7 +335,7 @@ export default function PlanEditorPage() {
                       <Section title="Short-Term Goals">
                         <ul className="list-disc list-inside space-y-1">
                           {therapistPlan.shortTermGoals.map((goal, idx) => (
-                            <li key={idx} className="text-gray-700 dark:text-[#d1d5db]">
+                            <li key={idx} className="text-[#3d4449] dark:text-[#d1d5db]">
                               {goal}
                             </li>
                           ))}
@@ -420,7 +345,7 @@ export default function PlanEditorPage() {
                       <Section title="Long-Term Goals">
                         <ul className="list-disc list-inside space-y-1">
                           {therapistPlan.longTermGoals.map((goal, idx) => (
-                            <li key={idx} className="text-gray-700 dark:text-[#d1d5db]">
+                            <li key={idx} className="text-[#3d4449] dark:text-[#d1d5db]">
                               {goal}
                             </li>
                           ))}
@@ -431,12 +356,9 @@ export default function PlanEditorPage() {
                     <Section title="Interventions Used">
                       <div className="flex flex-wrap gap-2">
                         {therapistPlan.interventionsUsed.map((intervention, idx) => (
-                          <span
-                            key={idx}
-                            className="px-3 py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full text-sm"
-                          >
+                          <Badge key={idx} variant="primary" size="md">
                             {intervention}
-                          </span>
+                          </Badge>
                         ))}
                       </div>
                     </Section>
@@ -444,7 +366,7 @@ export default function PlanEditorPage() {
                     <Section title="Homework Assigned">
                       <ul className="list-disc list-inside space-y-1">
                         {therapistPlan.homework.map((item, idx) => (
-                          <li key={idx} className="text-gray-700 dark:text-[#d1d5db]">
+                          <li key={idx} className="text-[#3d4449] dark:text-[#d1d5db]">
                             {item}
                           </li>
                         ))}
@@ -454,7 +376,7 @@ export default function PlanEditorPage() {
                     <Section title="Strengths & Protective Factors">
                       <ul className="list-disc list-inside space-y-1">
                         {therapistPlan.strengths.map((strength, idx) => (
-                          <li key={idx} className="text-gray-700 dark:text-[#d1d5db]">
+                          <li key={idx} className="text-[#3d4449] dark:text-[#d1d5db]">
                             {strength}
                           </li>
                         ))}
@@ -476,7 +398,7 @@ export default function PlanEditorPage() {
                 ) : (
                   <div className="space-y-6">
                     <Section title="Your Progress" variant="success">
-                      <p className="text-gray-700 dark:text-[#d1d5db] whitespace-pre-wrap">
+                      <p className="text-[#3d4449] dark:text-[#d1d5db] whitespace-pre-wrap">
                         {clientPlan.yourProgress}
                       </p>
                     </Section>
@@ -484,7 +406,7 @@ export default function PlanEditorPage() {
                     <Section title="Goals We Are Working On">
                       <ul className="list-disc list-inside space-y-1">
                         {clientPlan.goalsWeAreWorkingOn.map((goal, idx) => (
-                          <li key={idx} className="text-gray-700 dark:text-[#d1d5db]">
+                          <li key={idx} className="text-[#3d4449] dark:text-[#d1d5db]">
                             {goal}
                           </li>
                         ))}
@@ -495,7 +417,7 @@ export default function PlanEditorPage() {
                       <ul className="space-y-2">
                         {clientPlan.thingsToTry.map((item, idx) => (
                           <li key={idx} className="flex items-start gap-2">
-                            <span className="mt-1 text-green-500 dark:text-green-400">
+                            <span className="mt-1 text-[#a8b5a0] dark:text-[#b8c5b0]">
                               <svg
                                 className="h-4 w-4"
                                 fill="none"
@@ -510,7 +432,7 @@ export default function PlanEditorPage() {
                                 />
                               </svg>
                             </span>
-                            <span className="text-gray-700 dark:text-[#d1d5db]">{item}</span>
+                            <span className="text-[#3d4449] dark:text-[#d1d5db]">{item}</span>
                           </li>
                         ))}
                       </ul>
@@ -519,12 +441,9 @@ export default function PlanEditorPage() {
                     <Section title="Your Strengths" variant="success">
                       <div className="flex flex-wrap gap-2">
                         {clientPlan.yourStrengths.map((strength, idx) => (
-                          <span
-                            key={idx}
-                            className="px-3 py-1 bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-full text-sm"
-                          >
+                          <Badge key={idx} variant="sage" size="md">
                             {strength}
-                          </span>
+                          </Badge>
                         ))}
                       </div>
                     </Section>
@@ -536,8 +455,8 @@ export default function PlanEditorPage() {
 
           {/* Version History Sidebar */}
           <div className="lg:col-span-1">
-            <div className="bg-white dark:bg-[#161a1d] rounded-lg shadow-sm dark:shadow-none dark:border dark:border-[#2a2f35] p-6 sticky top-8">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-[#f5f3ef] mb-4">
+            <Card className="sticky top-8" padding="lg">
+              <h2 className="text-lg font-semibold text-[#1a1d21] dark:text-[#f5f3ef] mb-4">
                 Version History
               </h2>
               {versions.length > 0 ? (
@@ -547,30 +466,30 @@ export default function PlanEditorPage() {
                       key={v.id}
                       className={`p-3 rounded-lg border transition-colors ${
                         v.id === planId
-                          ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-300 dark:border-blue-800/50'
+                          ? 'bg-[#c4907a]/10 dark:bg-[#c4907a]/5 border-[#c4907a]/30 dark:border-[#c4907a]/20'
                           : v.isActive
-                            ? 'bg-green-50 dark:bg-green-900/20 border-green-300 dark:border-green-800/50'
-                            : 'bg-gray-50 dark:bg-[#1a1d21] border-gray-200 dark:border-[#2a2f35] hover:bg-gray-100 dark:hover:bg-[#2a2f35]'
+                            ? 'bg-[#a8b5a0]/10 dark:bg-[#a8b5a0]/5 border-[#a8b5a0]/30 dark:border-[#a8b5a0]/20'
+                            : 'bg-[#faf8f5] dark:bg-[#1a1d21] border-[#e8e6e1] dark:border-[#2a2f35] hover:bg-[#e8e6e1] dark:hover:bg-[#2a2f35]'
                       }`}
                     >
                       <div className="flex items-center justify-between mb-1">
-                        <span className="font-semibold text-gray-900 dark:text-[#f5f3ef]">
+                        <span className="font-semibold text-[#1a1d21] dark:text-[#f5f3ef]">
                           v{v.versionNumber}
                         </span>
                         <div className="flex gap-1">
                           {v.id === planId && (
-                            <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">
+                            <Badge variant="primary" size="sm">
                               Current
-                            </span>
+                            </Badge>
                           )}
                           {v.isActive && (
-                            <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300">
+                            <Badge variant="sage" size="sm">
                               Active
-                            </span>
+                            </Badge>
                           )}
                         </div>
                       </div>
-                      <div className="text-xs text-gray-500 dark:text-[#9ca3af] mb-2">
+                      <div className="text-xs text-[#6b7280] dark:text-[#9ca3af] mb-2">
                         {new Date(v.createdAt).toLocaleDateString('en-US', {
                           month: 'short',
                           day: 'numeric',
@@ -582,7 +501,7 @@ export default function PlanEditorPage() {
                       {v.id !== planId && (
                         <button
                           onClick={() => router.push(`/therapist/plans/${v.id}`)}
-                          className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium"
+                          className="text-sm text-[#c4907a] dark:text-[#d4a08a] hover:text-[#a67462] dark:hover:text-[#c4907a] font-medium"
                         >
                           View
                         </button>
@@ -591,15 +510,15 @@ export default function PlanEditorPage() {
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-gray-500 dark:text-[#9ca3af]">
+                <p className="text-sm text-[#6b7280] dark:text-[#9ca3af]">
                   No version history available.
                 </p>
               )}
-            </div>
+            </Card>
           </div>
         </div>
       </main>
-    </div>
+    </DashboardLayout>
   );
 }
 
@@ -613,23 +532,23 @@ function Section({
   variant?: 'default' | 'success' | 'danger';
 }) {
   const headerColors = {
-    default: 'bg-gray-50 dark:bg-[#1a1d21] border-gray-200 dark:border-[#2a2f35]',
-    success: 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800/30',
+    default: 'bg-[#faf8f5] dark:bg-[#1a1d21] border-[#e8e6e1] dark:border-[#2a2f35]',
+    success: 'bg-[#a8b5a0]/10 dark:bg-[#a8b5a0]/5 border-[#a8b5a0]/20 dark:border-[#a8b5a0]/10',
     danger: 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800/30',
   };
 
   const titleColors = {
-    default: 'text-gray-900 dark:text-[#f5f3ef]',
-    success: 'text-green-900 dark:text-green-300',
+    default: 'text-[#1a1d21] dark:text-[#f5f3ef]',
+    success: 'text-[#5a6b52] dark:text-[#a8b5a0]',
     danger: 'text-red-900 dark:text-red-300',
   };
 
   return (
-    <div className="bg-white dark:bg-[#161a1d] rounded-lg shadow-sm dark:shadow-none dark:border dark:border-[#2a2f35] overflow-hidden">
+    <Card className="overflow-hidden">
       <div className={`px-6 py-3 border-b ${headerColors[variant]}`}>
         <h3 className={`text-sm font-semibold ${titleColors[variant]}`}>{title}</h3>
       </div>
       <div className="px-6 py-4">{children}</div>
-    </div>
+    </Card>
   );
 }

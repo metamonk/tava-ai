@@ -1,4 +1,4 @@
-import { openai } from './aiService.js';
+import { openai, formatTranscriptForPrompt } from './aiService.js';
 
 // TypeScript interfaces for session summaries
 export interface TherapistSummary {
@@ -19,14 +19,19 @@ export interface ClientSummary {
 // GPT-4 THERAPIST SUMMARY GENERATION
 const THERAPIST_SUMMARY_PROMPT = `You are a licensed clinical psychologist creating a session summary from a therapy session transcript.
 
-Analyze the transcript and create a concise clinical session summary with:
-1. Session Focus: A brief 1-2 sentence overview of the primary theme/focus of this session
-2. Key Discussion Points: 3-5 main topics discussed during the session
-3. Clinical Observations: 3-5 notable observations from a clinical perspective (affect, engagement, progress, challenges)
-4. Progress Notes: A brief paragraph summarizing the client's progress and therapeutic movement
-5. Follow-up Items: 2-4 specific items to address or monitor in future sessions
+The transcript has speaker labels:
+- [THERAPIST]: Statements made by the therapist
+- [CLIENT]: Statements made by the client
 
-Use professional clinical language appropriate for medical records and clinical documentation.
+Use these labels to accurately summarize:
+
+1. Session Focus: A brief 1-2 sentence overview of the primary theme/focus
+2. Key Discussion Points: 3-5 main topics discussed (note which were client-initiated vs therapist-guided)
+3. Clinical Observations: 3-5 notable observations (affect, engagement, progress, challenges)
+4. Progress Notes: Brief paragraph on client's therapeutic progress
+5. Follow-up Items: 2-4 items to address in future sessions
+
+Use professional clinical language appropriate for medical records.
 
 Respond with ONLY valid JSON matching this schema:
 {
@@ -42,6 +47,7 @@ export async function generateTherapistSummary(
   sessionDate: string,
   maxRetries = 3
 ): Promise<TherapistSummary> {
+  const formattedTranscript = formatTranscriptForPrompt(transcript);
   let lastError: Error | null = null;
 
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
@@ -52,7 +58,7 @@ export async function generateTherapistSummary(
           { role: 'system', content: THERAPIST_SUMMARY_PROMPT },
           {
             role: 'user',
-            content: `Session Date: ${sessionDate}\n\nTranscript:\n${transcript}`,
+            content: `Session Date: ${sessionDate}\n\nTranscript:\n${formattedTranscript}`,
           },
         ],
         response_format: { type: 'json_object' },
@@ -126,6 +132,7 @@ export async function generateClientSummary(
   sessionDate: string,
   maxRetries = 3
 ): Promise<ClientSummary> {
+  const formattedTranscript = formatTranscriptForPrompt(transcript);
   let lastError: Error | null = null;
 
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
@@ -136,7 +143,7 @@ export async function generateClientSummary(
           { role: 'system', content: CLIENT_SUMMARY_PROMPT },
           {
             role: 'user',
-            content: `Session Date: ${sessionDate}\n\nTranscript:\n${transcript}`,
+            content: `Session Date: ${sessionDate}\n\nTranscript:\n${formattedTranscript}`,
           },
         ],
         response_format: { type: 'json_object' },

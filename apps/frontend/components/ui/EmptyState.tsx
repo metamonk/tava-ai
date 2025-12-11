@@ -39,12 +39,17 @@ export default function EmptyState({ icon, title, description, action }: EmptySt
 
 // Pre-built empty states for common scenarios
 
-export function NoClientsEmpty({ onAddClient }: { onAddClient?: () => void }) {
+interface NoClientsEmptyProps {
+  onAddClient?: () => void;
+  message?: string;
+}
+
+export function NoClientsEmpty({ onAddClient, message }: NoClientsEmptyProps) {
   return (
     <EmptyState
       icon={
         <svg
-          className="h-16 w-16 text-gray-400 dark:text-[#6b7280]"
+          className="h-16 w-16 text-[#6b7280] dark:text-[#6b7280]"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -58,12 +63,14 @@ export function NoClientsEmpty({ onAddClient }: { onAddClient?: () => void }) {
         </svg>
       }
       title="No clients yet"
-      description="Start by adding your first client to create sessions and treatment plans."
+      description={
+        message || 'Start by adding your first client to create sessions and treatment plans.'
+      }
       action={
         onAddClient && (
           <button
             onClick={onAddClient}
-            className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-400 transition-colors"
+            className="inline-flex items-center px-4 py-2 bg-[#c4907a] text-white rounded-lg hover:bg-[#a67462] dark:bg-[#c4907a] dark:hover:bg-[#d4a08a] transition-colors"
           >
             Add Client
           </button>
@@ -73,12 +80,22 @@ export function NoClientsEmpty({ onAddClient }: { onAddClient?: () => void }) {
   );
 }
 
-export function NoSessionsEmpty({ onCreateSession }: { onCreateSession?: () => void }) {
+interface NoSessionsEmptyProps {
+  onAction?: () => void;
+  actionLabel?: string;
+  message?: string;
+}
+
+export function NoSessionsEmpty({
+  onAction,
+  actionLabel = 'Create Session',
+  message,
+}: NoSessionsEmptyProps) {
   return (
     <EmptyState
       icon={
         <svg
-          className="h-16 w-16 text-gray-400 dark:text-[#6b7280]"
+          className="h-16 w-16 text-[#6b7280] dark:text-[#6b7280]"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -92,14 +109,17 @@ export function NoSessionsEmpty({ onCreateSession }: { onCreateSession?: () => v
         </svg>
       }
       title="No sessions yet"
-      description="Create a new session to start recording therapy notes and generating treatment plans."
+      description={
+        message ||
+        'Create a new session to start recording therapy notes and generating treatment plans.'
+      }
       action={
-        onCreateSession && (
+        onAction && (
           <button
-            onClick={onCreateSession}
-            className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-400 transition-colors"
+            onClick={onAction}
+            className="inline-flex items-center px-4 py-2 bg-[#c4907a] text-white rounded-lg hover:bg-[#a67462] dark:bg-[#c4907a] dark:hover:bg-[#d4a08a] transition-colors"
           >
-            Create Session
+            {actionLabel}
           </button>
         )
       }
@@ -107,12 +127,16 @@ export function NoSessionsEmpty({ onCreateSession }: { onCreateSession?: () => v
   );
 }
 
-export function NoPlansEmpty() {
+interface NoPlansEmptyProps {
+  message?: string;
+}
+
+export function NoPlansEmpty({ message }: NoPlansEmptyProps = {}) {
   return (
     <EmptyState
       icon={
         <svg
-          className="h-16 w-16 text-gray-400 dark:text-[#6b7280]"
+          className="h-16 w-16 text-[#6b7280] dark:text-[#6b7280]"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -125,8 +149,11 @@ export function NoPlansEmpty() {
           />
         </svg>
       }
-      title="No treatment plan yet"
-      description="Upload a transcript or audio recording to generate an AI-powered treatment plan."
+      title="No treatment plans yet"
+      description={
+        message ||
+        'Upload a transcript or audio recording to generate an AI-powered treatment plan.'
+      }
     />
   );
 }

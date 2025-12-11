@@ -11,7 +11,9 @@ import {
 
 // Users table - extended for BetterAuth compatibility
 export const users = pgTable('users', {
-  id: text('id').primaryKey(), // BetterAuth uses text IDs
+  id: text('id')
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()), // BetterAuth uses text IDs
   email: varchar('email', { length: 255 }).notNull().unique(),
   emailVerified: boolean('email_verified').default(false).notNull(),
   name: varchar('name', { length: 255 }).notNull(),
@@ -25,7 +27,9 @@ export const users = pgTable('users', {
 export const authSessions = pgTable(
   'auth_sessions',
   {
-    id: text('id').primaryKey(),
+    id: text('id')
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
     expiresAt: timestamp('expires_at').notNull(),
     token: text('token').notNull().unique(),
     createdAt: timestamp('created_at').defaultNow().notNull(),
@@ -43,7 +47,9 @@ export const authSessions = pgTable(
 export const account = pgTable(
   'account',
   {
-    id: text('id').primaryKey(),
+    id: text('id')
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
     accountId: text('account_id').notNull(),
     providerId: text('provider_id').notNull(),
     userId: text('user_id')
@@ -66,7 +72,9 @@ export const account = pgTable(
 export const verification = pgTable(
   'verification',
   {
-    id: text('id').primaryKey(),
+    id: text('id')
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
     identifier: text('identifier').notNull(),
     value: text('value').notNull(),
     expiresAt: timestamp('expires_at').notNull(),

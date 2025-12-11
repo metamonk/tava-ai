@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, FormEvent, ChangeEvent } from 'react';
+import { Button, LoadingSpinner } from '@/components/ui';
 
 interface TranscriptUploadProps {
   sessionId: string;
@@ -97,17 +98,19 @@ export default function TranscriptUpload({ sessionId, onUploadComplete }: Transc
   };
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md">
-      <h2 className="text-xl font-semibold mb-4 text-gray-900">Upload Transcript</h2>
+    <div className="bg-white dark:bg-[#161a1d] p-6 rounded-xl shadow-md dark:shadow-none dark:border dark:border-[#2a2f35]">
+      <h2 className="text-xl font-semibold mb-4 text-[#1a1d21] dark:text-[#f5f3ef]">
+        Upload Transcript
+      </h2>
 
       <div className="flex gap-2 mb-6">
         <button
           type="button"
           onClick={() => setUploadType('text')}
-          className={`px-4 py-2 rounded-md font-medium transition-colors ${
+          className={`px-4 py-2 rounded-lg font-medium transition-colors ${
             uploadType === 'text'
-              ? 'bg-blue-600 text-white'
-              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              ? 'bg-[#c4907a] text-white dark:bg-[#d4a08a]'
+              : 'bg-[#e8e6e1] dark:bg-[#1a1d21] text-[#3d4449] dark:text-[#d1d5db] hover:bg-[#d1d5db] dark:hover:bg-[#2a2f35]'
           }`}
         >
           Text Transcript
@@ -115,10 +118,10 @@ export default function TranscriptUpload({ sessionId, onUploadComplete }: Transc
         <button
           type="button"
           onClick={() => setUploadType('audio')}
-          className={`px-4 py-2 rounded-md font-medium transition-colors ${
+          className={`px-4 py-2 rounded-lg font-medium transition-colors ${
             uploadType === 'audio'
-              ? 'bg-blue-600 text-white'
-              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              ? 'bg-[#c4907a] text-white dark:bg-[#d4a08a]'
+              : 'bg-[#e8e6e1] dark:bg-[#1a1d21] text-[#3d4449] dark:text-[#d1d5db] hover:bg-[#d1d5db] dark:hover:bg-[#2a2f35]'
           }`}
         >
           Audio File
@@ -126,35 +129,41 @@ export default function TranscriptUpload({ sessionId, onUploadComplete }: Transc
       </div>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
-          <p className="text-sm text-red-700">{error}</p>
+        <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 rounded-lg">
+          <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
         </div>
       )}
 
       {success && (
-        <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-md">
-          <p className="text-sm text-green-700">{success}</p>
+        <div className="mb-4 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800/30 rounded-lg">
+          <p className="text-sm text-green-700 dark:text-green-300">{success}</p>
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         {uploadType === 'text' ? (
           <div>
-            <label htmlFor="transcript" className="block text-sm font-medium text-gray-700 mb-2">
+            <label
+              htmlFor="transcript"
+              className="block text-sm font-medium text-[#3d4449] dark:text-[#d1d5db] mb-2"
+            >
               Paste Transcript
             </label>
             <textarea
               id="transcript"
               value={transcriptText}
               onChange={(e) => setTranscriptText(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 h-64 resize-y"
+              className="w-full px-3 py-2 border border-[#e8e6e1] dark:border-[#2a2f35] rounded-lg shadow-sm bg-white dark:bg-[#1a1d21] text-[#1a1d21] dark:text-[#f5f3ef] placeholder-[#6b7280] dark:placeholder-[#9ca3af] focus:outline-none focus:ring-2 focus:ring-[#c4907a] focus:border-[#c4907a] h-64 resize-y"
               placeholder="Paste session transcript here..."
               required
             />
           </div>
         ) : (
           <div>
-            <label htmlFor="audio" className="block text-sm font-medium text-gray-700 mb-2">
+            <label
+              htmlFor="audio"
+              className="block text-sm font-medium text-[#3d4449] dark:text-[#d1d5db] mb-2"
+            >
               Audio File (Max 25MB)
             </label>
             <input
@@ -162,47 +171,24 @@ export default function TranscriptUpload({ sessionId, onUploadComplete }: Transc
               id="audio"
               accept="audio/*"
               onChange={handleFileChange}
-              className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+              className="w-full text-sm text-[#6b7280] dark:text-[#9ca3af] file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-[#c4907a]/10 file:text-[#c4907a] dark:file:bg-[#d4a08a]/10 dark:file:text-[#d4a08a] hover:file:bg-[#c4907a]/20 dark:hover:file:bg-[#d4a08a]/20"
               required
             />
             {audioFile && (
-              <p className="mt-2 text-sm text-gray-600">
+              <p className="mt-2 text-sm text-[#6b7280] dark:text-[#9ca3af]">
                 Selected: {audioFile.name} ({(audioFile.size / (1024 * 1024)).toFixed(2)} MB)
               </p>
             )}
-            <p className="mt-2 text-xs text-gray-500">
+            <p className="mt-2 text-xs text-[#6b7280] dark:text-[#9ca3af]">
               Note: Transcription will be processed separately after upload.
             </p>
           </div>
         )}
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
-        >
+        <Button type="submit" disabled={loading} className="w-full">
           {loading ? (
-            <span className="flex items-center">
-              <svg
-                className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                />
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                />
-              </svg>
+            <span className="flex items-center justify-center">
+              <LoadingSpinner size="sm" className="mr-2" />
               {uploadType === 'text' ? 'Saving...' : 'Uploading...'}
             </span>
           ) : uploadType === 'text' ? (
@@ -210,7 +196,7 @@ export default function TranscriptUpload({ sessionId, onUploadComplete }: Transc
           ) : (
             'Upload Audio'
           )}
-        </button>
+        </Button>
       </form>
     </div>
   );

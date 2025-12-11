@@ -5,7 +5,7 @@ import { openai } from './aiService.js';
 export async function moderateContent(text) {
     try {
         const response = await openai.moderations.create({
-            model: 'text-moderation-latest',
+            model: 'omni-moderation-latest',
             input: text,
         });
         const result = response.results[0];
